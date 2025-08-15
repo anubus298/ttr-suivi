@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1755108191621,
+      "tag": "0000_heavy_warstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1755109427064,
+      "tag": "0001_far_mentallo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1755110038959,
+      "tag": "0002_sad_roland_deschain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1755110157585,
+      "tag": "0003_chunky_warbound",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1755110298251,
+      "tag": "0004_smart_barracuda",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1755234684656,
+      "tag": "0005_smiling_carmella_unuscione",
+      "breakpoints": true
+    }
+  ]
+}
