@@ -1,23 +1,9 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAllMaladies } from "@/lib/api/maladies.api";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StatusBar,
-} from "react-native";
-import {
-  User,
-  Calendar,
-  Bell,
-  Settings,
-  Clock,
-  Users,
-  Thermometer,
-} from "lucide-react-native";
+import { View, TouchableOpacity, ScrollView, StatusBar } from "react-native";
+import { User, Calendar, Clock, Users, Thermometer } from "lucide-react-native";
 import { getAllPatients } from "@/lib/api/patients.api";
+import { Text } from "./text";
 
 const getCurrentGreeting = () => {
   const hour = new Date().getHours();
@@ -51,7 +37,7 @@ const DoctorGreetingScreen = () => {
               <User size={28} color="#3B82F6" />
             </View>
             <View className="ml-4">
-              <Text className="text-xl font-bold text-gray-900">
+              <Text className="font-outfitBold font-outfitBold text-gray-900">
                 Dr. Abdelmoumni
               </Text>
               <Text className="text-sm text-gray-600">Médecin généraliste</Text>
@@ -61,7 +47,7 @@ const DoctorGreetingScreen = () => {
 
         {/* Greeting Section */}
         <View className="px-6 py-8 bg-white mb-4">
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
+          <Text className="text-3xl font-outfitBold text-gray-900 mb-2">
             {getCurrentGreeting()}, Docteur ! 👋
           </Text>
           <Text className="text-base text-gray-700 mb-1 capitalize">
@@ -77,14 +63,14 @@ const DoctorGreetingScreen = () => {
           <View className="flex-row space-x-4">
             <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-sm font-semibold text-gray-600">
+                <Text className="text-sm font-outfitSemibold text-gray-600">
                   Aujourd'hui
                 </Text>
                 <View className="w-10 h-10 bg-emerald-100 rounded-full items-center justify-center">
                   <Calendar size={20} color="#10B981" />
                 </View>
               </View>
-              <Text className="text-3xl font-bold text-gray-900 mb-1">
+              <Text className="text-3xl font-outfitBold text-gray-900 mb-1">
                 {patientsData?.length}
               </Text>
               <Text className="text-xs text-gray-500">Patients</Text>
@@ -92,14 +78,16 @@ const DoctorGreetingScreen = () => {
 
             <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-sm font-semibold text-gray-600">
+                <Text className="text-sm font-outfitSemibold text-gray-600">
                   En attente
                 </Text>
                 <View className="w-10 h-10 bg-amber-100 rounded-full items-center justify-center">
                   <Clock size={20} color="#F59E0B" />
                 </View>
               </View>
-              <Text className="text-3xl font-bold text-gray-900 mb-1">3</Text>
+              <Text className="text-3xl font-outfitBold text-gray-900 mb-1">
+                3
+              </Text>
               <Text className="text-xs text-gray-500">Patients</Text>
             </View>
           </View>
@@ -107,7 +95,7 @@ const DoctorGreetingScreen = () => {
 
         {/* Quick Actions */}
         <View className="px-6">
-          <Text className="text-xl font-bold text-gray-900 mb-5">
+          <Text className="text-xl font-outfitBold text-gray-900 mb-5">
             Actions rapides
           </Text>
 
@@ -120,7 +108,7 @@ const DoctorGreetingScreen = () => {
                 <Users size={28} color="#6366F1" />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-900 mb-1">
+                <Text className="text-lg font-outfitSemibold text-gray-900 mb-1">
                   Liste des patients
                 </Text>
                 <Text className="text-sm text-gray-500">
@@ -137,7 +125,7 @@ const DoctorGreetingScreen = () => {
                 <Thermometer size={28} color="#f56565" />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-900 mb-1">
+                <Text className="text-lg font-outfitSemibold text-gray-900 mb-1">
                   Liste des maladies
                 </Text>
                 <Text className="text-sm text-gray-500">

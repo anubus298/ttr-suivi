@@ -10,13 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-} from "react-native";
+import { View, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import {
   Search,
   Filter,
@@ -24,11 +18,168 @@ import {
   User,
   Building2,
   Thermometer,
+  Trash,
 } from "lucide-react-native";
-import { useQuery } from "@tanstack/react-query";
-import { getAllPatients } from "@/lib/api/patients.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  addPatient,
+  deletePatient,
+  getAllPatients,
+} from "@/lib/api/patients.api";
 import { Button } from "./button";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Input } from "./input";
+import { Text } from "./text";
+const addPatientSchema = z.object({
+  full_name: z.string().min(2),
+  hospital_id: z.string().nullable(),
+  maladieId: z.number(),
+});
+const AddPatientButton = () => {
+  const form = useForm<z.infer<typeof addPatientSchema>>({
+    resolver: zodResolver(addPatientSchema),
+    defaultValues: {
+      full_name: "",
+      hospital_id: "",
+      maladieId: 0,
+    },
+  });
+  const onSubmit = (data: z.infer<typeof addPatientSchema>) => {
+    console.log(data);
+    addPatientMutation.mutate({ patient: data });
+  };
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const addPatientMutation = useMutation({
+    mutationKey: ["addPatient"],
+    mutationFn: addPatient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-patients"] });
+      form.reset();
+      setOpen(false);
+    },
+    onError: (err) => {
+      console.error("addPatient failed,", err);
+    },
+  });
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <TouchableOpacity
+          className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+          activeOpacity={0.8}
+        >
+          <Plus size={24} color="white" />
+        </TouchableOpacity>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Créer un patient</DialogTitle>
+          <DialogDescription>
+            Remplissez les informations du patient ici. Cliquez sur enregistrer
+            lorsque vous avez terminé.
+          </DialogDescription>
+          <View className="space-y-4 flex">
+            <Controller
+              control={form.control}
+              render={({ field }) => (
+                <View className="my-2">
+                  <Text className="mb-2 text-lg font-outfitSemibold">
+                    Nom complete:
+                  </Text>
+                  <Input
+                    placeholder="Write some stuff..."
+                    value={field.value}
+                    onChangeText={field.onChange}
+                  />
+                </View>
+              )}
+              name="full_name"
+            />
 
+            <Controller
+              control={form.control}
+              render={({ field }) => (
+                <View className="my-2">
+                  <Text className="mb-2 text-lg font-outfitSemibold">
+                    ID Hopital:
+                  </Text>
+                  <Input
+                    placeholder="Write some stuff..."
+                    value={field.value ?? ""}
+                    onChangeText={field.onChange}
+                  />
+                </View>
+              )}
+              name="hospital_id"
+            />
+          </View>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            disabled={!form.formState.isValid}
+            onPress={form.handleSubmit(onSubmit)}
+          >
+            <Text>Enregistrer</Text>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const DeletePatientButton = ({
+  patient,
+}: {
+  patient: typeof patientsTable.$inferSelect;
+}) => {
+  const onSubmit = () => {
+    addPatientMutation.mutate({ patientId: patient.id });
+  };
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const addPatientMutation = useMutation({
+    mutationKey: ["deletePatient"],
+    mutationFn: deletePatient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-patients"] });
+      setOpen(false);
+    },
+    onError: (err) => {
+      console.error("DeletePatient failed,", err);
+    },
+  });
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <TouchableOpacity
+          className="w-8 h-8 bg-red-500 rounded-full items-center justify-center"
+          activeOpacity={0.8}
+        >
+          <Trash size={16} color="white" />
+        </TouchableOpacity>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="text-red-500">
+            Supprimer le patient
+          </DialogTitle>
+          <DialogDescription>
+            Voulez-vous vraiment supprimer le patient {patient.full_name} ?
+            Êtes-vous sûr(e) ?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button onPress={onSubmit} variant={"destructive"}>
+            <Text>Supprimer</Text>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 const PatientsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,12 +188,19 @@ const PatientsScreen = () => {
     queryFn: getAllPatients,
   });
 
-  const filteredPatients = patients?.filter(
-    (patient) =>
-      patient.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.maladieId.toString().includes(searchQuery.toLowerCase()) ||
-      patient.hospital_id?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredPatients =
+    searchQuery.length <= 1
+      ? patients
+      : patients?.filter(
+          (patient) =>
+            patient.full_name
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            patient.maladieId.toString().includes(searchQuery.toLowerCase()) ||
+            patient.hospital_id
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase()),
+        );
 
   return (
     <>
@@ -51,21 +209,18 @@ const PatientsScreen = () => {
         <View className="bg-white px-6 pt-14 pb-6">
           <View className="flex-row items-center justify-between mb-6">
             <View>
-              <Text className="text-2xl font-bold text-gray-900">Patients</Text>
+              <Text className="text-2xl font-outfitBold text-gray-900">
+                Patients
+              </Text>
               <Text className="text-sm text-gray-500">
                 {filteredPatients?.length ?? 0} patients trouvés
               </Text>
             </View>
-            <TouchableOpacity
-              className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
-              activeOpacity={0.8}
-            >
-              <Plus size={24} color="white" />
-            </TouchableOpacity>
+            <AddPatientButton />
           </View>
 
           {/* Search Bar */}
-          <View className="flex-row space-x-3">
+          <View className="flex-row items-center gap-x-1">
             <View className="flex-1 bg-gray-50 rounded-2xl px-4 py-3 flex-row items-center">
               <Search size={20} color="#6B7280" />
               <TextInput
@@ -77,7 +232,7 @@ const PatientsScreen = () => {
               />
             </View>
             <TouchableOpacity
-              className="w-12 h-12 bg-gray-50 rounded-2xl items-center justify-center"
+              className="w-12 h-12 rounded-2xl items-center justify-center"
               activeOpacity={0.7}
             >
               <Filter size={20} color="#6B7280" />
@@ -87,12 +242,15 @@ const PatientsScreen = () => {
 
         {/* Patients List */}
         <ScrollView
-          className="space-y-4"
+          className="space-y-4 px-2"
           bounces={false}
           showsHorizontalScrollIndicator={false}
         >
-          {patients?.map((p) => (
-            <PatientCard key={p.hospital_id + "patient-card"} patient={p} />
+          {filteredPatients?.map((p) => (
+            <PatientCard
+              key={p.id + "-" + p.hospital_id + "patient-card"}
+              patient={p}
+            />
           ))}
         </ScrollView>
       </View>
@@ -122,12 +280,16 @@ const PatientCard = ({
           <User size={28} color="#3B82F6" />
         </View>
         <View className="flex-1">
-          <Text className="text-xl font-bold text-gray-900 mb-1">
-            {patient.full_name}
-          </Text>
-          <View className="flex-row items-center">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-xl font-outfitBold text-gray-900 mb-1">
+              {patient.full_name}
+            </Text>
+
+            <DeletePatientButton patient={patient} />
+          </View>
+          <View className="flex-row justify-between items-center">
             <View className="bg-gray-100 px-3 py-1 rounded-full">
-              <Text className="text-xs font-semibold text-gray-600">
+              <Text className="text-xs font-outfitSemibold text-gray-600">
                 ID: {patient.id}
               </Text>
             </View>
@@ -136,32 +298,32 @@ const PatientCard = ({
       </View>
 
       {/* Patient Details */}
-      <View className="space-y-3">
+      <View className="gap-y-1 flex">
         {/* Hospital */}
         <View className="flex-row items-center bg-blue-50 px-4 py-3 rounded-2xl">
           <View className="w-8 h-8 bg-blue-200 rounded-full items-center justify-center mr-3">
             <Building2 size={16} color="#2563EB" />
           </View>
           <View>
-            <Text className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+            <Text className="text-xs font-outfitSemibold text-blue-600 uppercase tracking-wide">
               Hôpital ID
             </Text>
-            <Text className="text-base font-semibold text-blue-900">
+            <Text className="text-base font-outfitSemibold text-blue-900">
               {patient.hospital_id}
             </Text>
           </View>
         </View>
 
         {/* Disease */}
-        <View className="flex-row items-center bg-red-50 px-4 py-3 rounded-2xl">
+        <View className="flex-row  items-center bg-red-50 px-4 py-3 rounded-2xl">
           <View className="w-8 h-8 bg-red-200 rounded-full items-center justify-center mr-3">
             <Thermometer size={16} />
           </View>
           <View>
-            <Text className="text-xs font-medium text-red-600 uppercase tracking-wide">
+            <Text className="text-xs  font-outfitSemibold text-red-600 uppercase tracking-wide">
               Diagnostic
             </Text>
-            <Text className="text-base font-semibold text-red-900">
+            <Text className="text-base font-outfitSemibold text-red-900">
               {patient.maladieId}
             </Text>
           </View>
@@ -172,7 +334,7 @@ const PatientCard = ({
       <View className="mt-4 pt-4 border-t border-gray-100">
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
+            <Button variant={"outline"}>
               <Text>Touchez pour voir plus de détails</Text>
             </Button>
           </DialogTrigger>
@@ -182,10 +344,15 @@ const PatientCard = ({
               <DialogDescription>
                 Make changes to your profile here. Click save when you're done.
               </DialogDescription>
+              <View className="flex-row flex">
+                <Button>
+                  <Text>Voir le graphe</Text>
+                </Button>
+              </View>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button>
+                <Button variant={"secondary"}>
                   <Text>OK</Text>
                 </Button>
               </DialogClose>
