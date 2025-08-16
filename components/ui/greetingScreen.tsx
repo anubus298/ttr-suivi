@@ -1,7 +1,15 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { View, TouchableOpacity, ScrollView, StatusBar } from "react-native";
-import { User, Calendar, Clock, Users, Thermometer } from "lucide-react-native";
+import {
+  User,
+  Calendar,
+  Clock,
+  Users,
+  Thermometer,
+  Archive,
+  FileUser,
+} from "lucide-react-native";
 import { getAllPatients } from "@/lib/api/patients.api";
 import { Text } from "./text";
 
@@ -37,7 +45,7 @@ const DoctorGreetingScreen = () => {
               <User size={28} color="#3B82F6" />
             </View>
             <View className="ml-4">
-              <Text className="font-outfitBold font-outfitBold text-gray-900">
+              <Text className="font-outfitBold text-gray-900">
                 Dr. Abdelmoumni
               </Text>
               <Text className="text-sm text-gray-600">Médecin généraliste</Text>
@@ -48,7 +56,7 @@ const DoctorGreetingScreen = () => {
         {/* Greeting Section */}
         <View className="px-6 py-8 bg-white mb-4">
           <Text className="text-3xl font-outfitBold text-gray-900 mb-2">
-            {getCurrentGreeting()}, Docteur ! 👋
+            {getCurrentGreeting()}, Docteur !👋
           </Text>
           <Text className="text-base text-gray-700 mb-1 capitalize">
             {getCurrentDate()}
@@ -60,14 +68,14 @@ const DoctorGreetingScreen = () => {
 
         {/* Stats Cards */}
         <View className="px-6 mb-6">
-          <View className="flex-row space-x-4">
+          <View className="flex-row flex gap-x-2">
             <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm">
               <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-sm font-outfitSemibold text-gray-600">
-                  Aujourd'hui
+                  Vous avez
                 </Text>
                 <View className="w-10 h-10 bg-emerald-100 rounded-full items-center justify-center">
-                  <Calendar size={20} color="#10B981" />
+                  <FileUser size={20} color="#10B981" />
                 </View>
               </View>
               <Text className="text-3xl font-outfitBold text-gray-900 mb-1">
@@ -79,16 +87,16 @@ const DoctorGreetingScreen = () => {
             <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm">
               <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-sm font-outfitSemibold text-gray-600">
-                  En attente
+                  ?
                 </Text>
                 <View className="w-10 h-10 bg-amber-100 rounded-full items-center justify-center">
-                  <Clock size={20} color="#F59E0B" />
+                  <Archive size={20} color="#F59E0B" />
                 </View>
               </View>
               <Text className="text-3xl font-outfitBold text-gray-900 mb-1">
-                3
+                ?
               </Text>
-              <Text className="text-xs text-gray-500">Patients</Text>
+              <Text className="text-xs text-gray-500">?</Text>
             </View>
           </View>
         </View>

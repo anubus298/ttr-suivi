@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { patientsTable } from "@/db/schema";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -25,6 +24,7 @@ import {
   addPatient,
   deletePatient,
   getAllPatients,
+  updatePatient,
 } from "@/lib/api/patients.api";
 import { Button } from "./button";
 import { Controller, useForm } from "react-hook-form";
@@ -37,21 +37,49 @@ const addPatientSchema = z.object({
   hospital_id: z.string().nullable(),
   maladieId: z.number(),
 });
-const AddPatientButton = () => {
+const ActionPatientButton = ({
+  patient,
+  isUpdate = false,
+  open,
+  setOpen,
+}: {
+  patient?: typeof patientsTable.$inferSelect;
+  isUpdate?: boolean;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+}) => {
   const form = useForm<z.infer<typeof addPatientSchema>>({
     resolver: zodResolver(addPatientSchema),
-    defaultValues: {
-      full_name: "",
-      hospital_id: "",
-      maladieId: 0,
-    },
+    defaultValues: isUpdate
+      ? patient
+      : {
+          full_name: "",
+          hospital_id: "",
+          maladieId: 0,
+        },
   });
   const onSubmit = (data: z.infer<typeof addPatientSchema>) => {
     console.log(data);
-    addPatientMutation.mutate({ patient: data });
+    if (isUpdate && patient?.id) {
+      updatePatientMutation.mutate({ patient: data, patientId: patient.id });
+    }
+    if (!isUpdate) {
+      addPatientMutation.mutate({ patient: data });
+    }
   };
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const updatePatientMutation = useMutation({
+    mutationKey: ["updatePatient"],
+    mutationFn: updatePatient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-patients"] });
+      form.reset();
+      setOpen(false);
+    },
+    onError: (err) => {
+      console.error("addPatient failed,", err);
+    },
+  });
   const addPatientMutation = useMutation({
     mutationKey: ["addPatient"],
     mutationFn: addPatient,
@@ -64,22 +92,28 @@ const AddPatientButton = () => {
       console.error("addPatient failed,", err);
     },
   });
+  useEffect(() => {
+    if (isUpdate) {
+      form.reset(patient);
+    } else {
+      form.reset({
+        full_name: "",
+        hospital_id: undefined,
+        maladieId: undefined,
+      });
+    }
+  }, [open]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <TouchableOpacity
-          className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
-          activeOpacity={0.8}
-        >
-          <Plus size={24} color="white" />
-        </TouchableOpacity>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Créer un patient</DialogTitle>
+          <DialogTitle>
+            {isUpdate ? "Modifier un patient" : "Créer un patient"}
+          </DialogTitle>
           <DialogDescription>
-            Remplissez les informations du patient ici. Cliquez sur enregistrer
-            lorsque vous avez terminé.
+            {isUpdate
+              ? "Mettez à jour les informations du patient ici. Cliquez sur enregistrer lorsque vous avez terminé."
+              : "Remplissez les informations du patient ici. Cliquez sur enregistrer lorsque vous avez terminé."}
           </DialogDescription>
           <View className="space-y-4 flex">
             <Controller
@@ -148,17 +182,17 @@ const DeletePatientButton = ({
       setOpen(false);
     },
     onError: (err) => {
-      console.error("DeletePatient failed,", err);
+      console.error("DeletePatient failed.", err);
     },
   });
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <TouchableOpacity
-          className="w-8 h-8 bg-red-500 rounded-full items-center justify-center"
+          className="w-8 h-8 rounded-full items-center justify-center"
           activeOpacity={0.8}
         >
-          <Trash size={16} color="white" />
+          <Trash size={16} color={"red"} />
         </TouchableOpacity>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -182,7 +216,11 @@ const DeletePatientButton = ({
 };
 const PatientsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [openData, setOpenData] = useState<{
+    open: boolean;
+    isUpdate: boolean;
+    patient?: typeof patientsTable.$inferSelect;
+  }>({ open: false, isUpdate: false, patient: undefined });
   const { data: patients } = useQuery({
     queryKey: ["all-patients"],
     queryFn: getAllPatients,
@@ -206,6 +244,11 @@ const PatientsScreen = () => {
     <>
       <View className="flex-1 bg-slate-50">
         {/* Header */}
+
+        <ActionPatientButton
+          {...openData}
+          setOpen={(v) => setOpenData((prev) => ({ ...prev, open: v }))}
+        />
         <View className="bg-white px-6 pt-14 pb-6">
           <View className="flex-row items-center justify-between mb-6">
             <View>
@@ -216,7 +259,20 @@ const PatientsScreen = () => {
                 {filteredPatients?.length ?? 0} patients trouvés
               </Text>
             </View>
-            <AddPatientButton />
+
+            <TouchableOpacity
+              onPress={() =>
+                setOpenData({
+                  open: true,
+                  isUpdate: false,
+                  patient: undefined,
+                })
+              }
+              className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+              activeOpacity={0.8}
+            >
+              <Plus size={24} color="white" />
+            </TouchableOpacity>
           </View>
 
           {/* Search Bar */}
@@ -248,6 +304,7 @@ const PatientsScreen = () => {
         >
           {filteredPatients?.map((p) => (
             <PatientCard
+              setOpenData={setOpenData}
               key={p.id + "-" + p.hospital_id + "patient-card"}
               patient={p}
             />
@@ -260,9 +317,16 @@ const PatientsScreen = () => {
 
 const PatientCard = ({
   patient,
+  setOpenData,
 }: {
   patient: typeof patientsTable.$inferSelect;
+  setOpenData: (v: {
+    patient?: typeof patientsTable.$inferSelect;
+    open: boolean;
+    isUpdate: boolean;
+  }) => void;
 }) => {
+  const [detailsIsOpen, setDetailsIsOpen] = useState(false);
   return (
     <View
       className="bg-white rounded-3xl p-6 mb-4 shadow-lg border border-gray-50"
@@ -332,31 +396,35 @@ const PatientCard = ({
 
       {/* Action Indicator */}
       <View className="mt-4 pt-4 border-t border-gray-100">
-        <Dialog>
+        <Dialog open={detailsIsOpen} onOpenChange={setDetailsIsOpen}>
           <DialogTrigger asChild>
             <Button variant={"outline"}>
               <Text>Touchez pour voir plus de détails</Text>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
-              </DialogDescription>
-              <View className="flex-row flex">
-                <Button>
-                  <Text>Voir le graphe</Text>
-                </Button>
-              </View>
+              <DialogTitle>Details</DialogTitle>
             </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant={"secondary"}>
-                  <Text>OK</Text>
-                </Button>
-              </DialogClose>
-            </DialogFooter>
+            <View className="flex-row w-full gap-x-1 mt-3 flex">
+              <Button className="">
+                <Text className="text-background">Voir le graphe</Text>
+              </Button>
+
+              <Button
+                onPress={() => {
+                  setDetailsIsOpen(false);
+                  setOpenData({
+                    open: true,
+                    isUpdate: true,
+                    patient,
+                  });
+                }}
+                className=""
+              >
+                <Text className="text-background">Modifier</Text>
+              </Button>
+            </View>
           </DialogContent>
         </Dialog>
       </View>
