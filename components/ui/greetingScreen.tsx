@@ -12,6 +12,7 @@ import {
 } from "lucide-react-native";
 import { getAllPatients } from "@/lib/api/patients.api";
 import { Text } from "./text";
+import { useRouter } from "expo-router";
 
 const getCurrentGreeting = () => {
   const hour = new Date().getHours();
@@ -34,6 +35,7 @@ const DoctorGreetingScreen = () => {
     queryKey: ["all-patients"],
     queryFn: getAllPatients,
   });
+  const router = useRouter();
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
@@ -109,6 +111,7 @@ const DoctorGreetingScreen = () => {
 
           <View className="gap-y-3">
             <TouchableOpacity
+              onPress={() => router.navigate("/explore")}
               className="bg-white rounded-2xl p-5 flex-row items-center shadow-sm border border-gray-100"
               activeOpacity={0.7}
             >
@@ -126,6 +129,7 @@ const DoctorGreetingScreen = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
+              onPress={() => router.navigate("/maladies")}
               className="bg-white rounded-2xl p-5 flex-row items-center shadow-sm border border-gray-100"
               activeOpacity={0.7}
             >
