@@ -7,6 +7,13 @@ export const getAllMaladies = async () => {
   return maladies;
 };
 
+export const getMaladiById = async (maladieId: number) => {
+  const maladies = await db
+    .select()
+    .from(maladiesTable)
+    .where(eq(maladiesTable.id, maladieId));
+  return maladies;
+};
 export const deleteMaladie = async (data: { maladieId: number }) => {
   const res = await db
     .delete(maladiesTable)

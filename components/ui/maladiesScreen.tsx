@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -17,13 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  View,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Platform,
-} from "react-native";
+import { View, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import {
   Search,
   Filter,
@@ -32,6 +17,7 @@ import {
   Thermometer,
   ArrowBigUpDash,
   ArrowBigDownDash,
+  Pen,
 } from "lucide-react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./button";
@@ -47,8 +33,6 @@ import {
   updateMaladie,
 } from "@/lib/api/maladies.api";
 import { maladiesTable } from "@/db/schema";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getAllPatients } from "@/lib/api/patients.api";
 const MaladieSchema = z
   .object({
     name: z
@@ -78,8 +62,8 @@ const ActionMaladieButton = ({
     defaultValues: isUpdate
       ? {
           ...maladie,
-          minA: maladie?.minA.toString(),
-          maxB: maladie?.maxB.toString(),
+          minA: maladie?.minA?.toString?.() ?? "",
+          maxB: maladie?.maxB?.toString?.() ?? "",
         }
       : {
           name: "",
@@ -116,6 +100,9 @@ const ActionMaladieButton = ({
     mutationFn: updateMaladie,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-maladies"] });
+      queryClient.invalidateQueries({ queryKey: ["records"] });
+      queryClient.invalidateQueries({ queryKey: ["maladie"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       form.reset();
       setOpen(false);
     },
@@ -136,11 +123,12 @@ const ActionMaladieButton = ({
     },
   });
   useEffect(() => {
+    console.info(maladie);
     if (isUpdate) {
       form.reset({
         ...maladie,
-        minA: maladie?.minA.toString(),
-        maxB: maladie?.maxB.toString(),
+        minA: maladie?.minA?.toString?.() ?? "",
+        maxB: maladie?.maxB?.toString?.() ?? "",
       });
     } else {
       form.reset({
@@ -152,20 +140,6 @@ const ActionMaladieButton = ({
     }
   }, [open]);
 
-  const { data: patients } = useQuery({
-    queryKey: ["all-patients"],
-    queryFn: getAllPatients,
-  });
-  const insets = useSafeAreaInsets();
-  const contentInsets = {
-    top: insets.top,
-    bottom: Platform.select({
-      ios: insets.bottom,
-      android: insets.bottom + 24,
-    }),
-    left: 12,
-    right: 12,
-  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -307,12 +281,9 @@ const DeleteMaladieButton = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <TouchableOpacity
-          className="w-4 h-4 rounded-full items-center bg-black justify-start"
-          activeOpacity={0.8}
-        >
+        <Button variant={"ghost"}>
           <Trash size={16} color={"red"} />
-        </TouchableOpacity>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -355,8 +326,6 @@ const MaladiesScreen = () => {
   return (
     <>
       <View className="flex-1 bg-slate-50">
-        {/* Header */}
-
         <ActionMaladieButton
           {...openData}
           setOpen={(v) => setOpenData((prev) => ({ ...prev, open: v }))}
@@ -434,15 +403,14 @@ const MaladieCard = ({
 }: {
   malady: typeof maladiesTable.$inferSelect;
   setOpenData: (v: {
-    malady?: typeof maladiesTable.$inferSelect;
+    maladie?: typeof maladiesTable.$inferSelect;
     open: boolean;
     isUpdate: boolean;
   }) => void;
 }) => {
-  const [detailsIsOpen, setDetailsIsOpen] = useState(false);
   return (
     <View
-      className="m-1 w-1/2 h-auto rounded-md bg-white "
+      className="m-1 w-full mx-2 h-auto rounded-md bg-white "
       style={{
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
@@ -453,6 +421,23 @@ const MaladieCard = ({
     >
       <View className="flex justify-end items-end">
         <DeleteMaladieButton maladie={malady} />
+        <Button
+          variant={"ghost"}
+          onPress={() => {
+            setOpenData({
+              open: false,
+              isUpdate: true,
+              maladie: malady,
+            });
+            setOpenData({
+              open: true,
+              isUpdate: true,
+              maladie: malady,
+            });
+          }}
+        >
+          <Pen size={16} />
+        </Button>
       </View>
       <View className="p-3 pb-2 flex  gap-y-1 items-center">
         <Thermometer size={16} color={"red"} />
@@ -494,3 +479,66 @@ const MaladieCard = ({
   );
 };
 export default MaladiesScreen;
+
+// export function DiseaseScanRecord({}: {
+//   record: typeof patientsInrRecordsTable.$inferSelect;
+// }) {
+//   const formatDate = (dateString: string) => {
+//     return new Date(dateString).toLocaleDateString("en-US", {
+//       month: "short",
+//       day: "numeric",
+//       year: "numeric",
+//     });
+//   };
+//
+//   const getStatusColor = (status: string) => {
+//     switch (status) {
+//       case "critical":
+//         return "bg-destructive text-destructive-foreground";
+//       case "elevated":
+//         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+//       default:
+//         return "bg-primary/10 text-primary";
+//     }
+//   };
+//
+//   return (
+//     <Card className="w-full max-w-sm border border-border shadow-sm">
+//       <CardHeader className="pb-3">
+//         <div className="flex items-center justify-between">
+//           <div className="flex items-center gap-2">
+//             <Activity className="h-4 w-4 text-primary" />
+//             <h3 className="font-semibold text-sm text-card-foreground">
+//               {testName}
+//             </h3>
+//           </div>
+//           <Badge variant="secondary" className={getStatusColor(status)}>
+//             {status}
+//           </Badge>
+//         </div>
+//       </CardHeader>
+//       <CardContent className="pt-0">
+//         <div className="space-y-2">
+//           <div className="flex items-baseline gap-1">
+//             <span className="text-2xl font-bold text-card-foreground">
+//               {value}
+//             </span>
+//             <span className="text-sm text-muted-foreground">{unit}</span>
+//           </div>
+//
+//           {referenceRange && (
+//             <p className="text-xs text-muted-foreground">
+//               Reference: {referenceRange}
+//             </p>
+//           )}
+//
+//           <div className="pt-2 border-t border-border">
+//             <p className="text-xs text-muted-foreground">
+//               Recorded: {formatDate(recorded_at)}
+//             </p>
+//           </div>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }

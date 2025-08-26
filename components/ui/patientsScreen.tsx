@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { patientsTable } from "@/db/schema";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -9,7 +16,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { View, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Platform,
+} from "react-native";
 import {
   Search,
   Filter,
@@ -32,7 +45,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "./input";
 import { Text } from "./text";
-const addPatientSchema = z.object({
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getAllMaladies } from "@/lib/api/maladies.api";
+import { useRouter } from "expo-router";
+const PatientSchema = z.object({
   full_name: z.string().min(2),
   hospital_id: z.string().nullable(),
   maladieId: z.number(),
@@ -48,8 +64,8 @@ const ActionPatientButton = ({
   open: boolean;
   setOpen: (v: boolean) => void;
 }) => {
-  const form = useForm<z.infer<typeof addPatientSchema>>({
-    resolver: zodResolver(addPatientSchema),
+  const form = useForm<z.infer<typeof PatientSchema>>({
+    resolver: zodResolver(PatientSchema),
     defaultValues: isUpdate
       ? patient
       : {
@@ -58,7 +74,7 @@ const ActionPatientButton = ({
           maladieId: 0,
         },
   });
-  const onSubmit = (data: z.infer<typeof addPatientSchema>) => {
+  const onSubmit = (data: z.infer<typeof PatientSchema>) => {
     console.log(data);
     if (isUpdate && patient?.id) {
       updatePatientMutation.mutate({ patient: data, patientId: patient.id });
@@ -103,6 +119,21 @@ const ActionPatientButton = ({
       });
     }
   }, [open]);
+
+  const { data: maladies } = useQuery({
+    queryKey: ["all-maladies"],
+    queryFn: getAllMaladies,
+  });
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: Platform.select({
+      ios: insets.bottom,
+      android: insets.bottom + 24,
+    }),
+    left: 12,
+    right: 12,
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -148,6 +179,44 @@ const ActionPatientButton = ({
                 </View>
               )}
               name="hospital_id"
+            />
+
+            <Controller
+              control={form.control}
+              render={({ field }) => (
+                <View className="my-2">
+                  <Text className="mb-2 text-lg font-outfitSemibold">
+                    Maladie:
+                  </Text>
+                  <Select
+                    value={{
+                      label:
+                        maladies?.find((m) => m.id === field.value)?.name ??
+                        "Choisir le maladie",
+                      value: field?.value?.toString?.() ?? "",
+                    }}
+                    onValueChange={(o) =>
+                      field.onChange(parseInt(o?.value ?? ""))
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Choisir" />
+                    </SelectTrigger>
+                    <SelectContent insets={contentInsets} className="w-[180px]">
+                      {maladies?.map((ml) => (
+                        <SelectItem
+                          key={ml.id + "maladie-select-item"}
+                          label={ml.name}
+                          value={ml.id.toString()}
+                        >
+                          {ml.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </View>
+              )}
+              name="maladieId"
             />
           </View>
         </DialogHeader>
@@ -327,6 +396,7 @@ const PatientCard = ({
   }) => void;
 }) => {
   const [detailsIsOpen, setDetailsIsOpen] = useState(false);
+  const router = useRouter();
   return (
     <View
       className="bg-white rounded-3xl p-6 mb-4 shadow-lg border border-gray-50"
@@ -388,7 +458,8 @@ const PatientCard = ({
               Diagnostic
             </Text>
             <Text className="text-base font-outfitSemibold text-red-900">
-              {patient.maladieId}
+              {/* @ts-expect-error */}
+              {patient.maladieName}
             </Text>
           </View>
         </View>
@@ -407,7 +478,19 @@ const PatientCard = ({
               <DialogTitle>Details</DialogTitle>
             </DialogHeader>
             <View className="flex-row w-full gap-x-1 mt-3 flex">
-              <Button className="">
+              <Button
+                onPress={() => {
+                  router.push(
+                    //@ts-expect-error
+                    "/records?maladieId=" +
+                      patient.maladieId +
+                      "&" +
+                      "userId=" +
+                      patient.id,
+                  );
+                  setDetailsIsOpen(false);
+                }}
+              >
                 <Text className="text-background">Voir le graphe</Text>
               </Button>
 

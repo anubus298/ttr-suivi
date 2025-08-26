@@ -3,11 +3,9 @@ import React from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { Cross, House, User } from "lucide-react-native";
 
 export default function TabLayout() {
   return (
@@ -19,7 +17,6 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
           default: {},
@@ -30,18 +27,22 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <House size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
-          ),
+          title: "Patients",
+          tabBarIcon: ({ color }) => <User size={28} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="maladies"
+        options={{
+          title: "Maladies",
+          tabBarIcon: ({ color }) => <Cross size={28} color={color} />,
         }}
       />
     </Tabs>
