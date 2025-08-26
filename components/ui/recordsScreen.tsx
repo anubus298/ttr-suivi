@@ -229,10 +229,10 @@ export const RecordsScreen = (props: Props) => {
               <View
                 style={[styles.cell, styles.headerCell, styles.valueColumn]}
               >
-                <Text style={styles.headerText}>Value</Text>
+                <Text style={styles.headerText}>Valuer</Text>
               </View>
               <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
-                <Text style={styles.headerText}>Recorded At</Text>
+                <Text style={styles.headerText}>Date de capture</Text>
               </View>
 
               <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
@@ -335,9 +335,7 @@ const DeleteButton = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-red-500">
-            Supprimer le patient
-          </DialogTitle>
+          <DialogTitle className="text-red-500">Supprimer</DialogTitle>
           <DialogDescription>
             Voulez-vous vraiment supprimer le record {record.id} ? Êtes-vous
             sûr(e) ?

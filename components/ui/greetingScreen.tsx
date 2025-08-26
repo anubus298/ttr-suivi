@@ -85,21 +85,6 @@ const DoctorGreetingScreen = () => {
               </Text>
               <Text className="text-xs text-gray-500">Patients</Text>
             </View>
-
-            <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm">
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-sm font-outfitSemibold text-gray-600">
-                  ?
-                </Text>
-                <View className="w-10 h-10 bg-amber-100 rounded-full items-center justify-center">
-                  <Archive size={20} color="#F59E0B" />
-                </View>
-              </View>
-              <Text className="text-3xl font-outfitBold text-gray-900 mb-1">
-                ?
-              </Text>
-              <Text className="text-xs text-gray-500">?</Text>
-            </View>
           </View>
         </View>
 

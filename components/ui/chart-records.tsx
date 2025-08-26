@@ -68,35 +68,71 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const exceededCount = data.filter((v) => v < minA || v > maxB).length;
   const inRangeCount = total - exceededCount;
 
-  const inThresholdDates = filteredRecords
-    .filter((r) => r.value >= minA && r.value <= maxB)
-    .map((r) => new Date(r.recorded_at));
+  // ----------------------
+  // Rosendaal-style TTR calculation
+  // ----------------------
+  let daysInRange = 0;
+  let totalDays = 0;
 
-  let ttr = 0;
-  if (inThresholdDates.length > 1) {
-    let daysInThreshold = 0;
-    for (let i = 1; i < inThresholdDates.length; i++) {
-      const diff =
-        (inThresholdDates[i].getTime() - inThresholdDates[i - 1].getTime()) /
-        (1000 * 60 * 60 * 24);
-      daysInThreshold += diff;
+  for (let i = 1; i < filteredRecords.length; i++) {
+    const prev = filteredRecords[i - 1];
+    const curr = filteredRecords[i];
+
+    const prevDate = new Date(prev.recorded_at).getTime();
+    const currDate = new Date(curr.recorded_at).getTime();
+    const intervalDays = (currDate - prevDate) / (1000 * 60 * 60 * 24);
+
+    if (intervalDays <= 0) continue;
+    totalDays += intervalDays;
+
+    const prevVal = prev.value;
+    const currVal = curr.value;
+
+    // Case 1: Both INRs in range
+    if (
+      prevVal >= minA &&
+      prevVal <= maxB &&
+      currVal >= minA &&
+      currVal <= maxB
+    ) {
+      daysInRange += intervalDays;
     }
-
-    const totalDays =
-      (new Date(
-        filteredRecords[filteredRecords.length - 1].recorded_at,
-      ).getTime() -
-        new Date(filteredRecords[0].recorded_at).getTime()) /
-      (1000 * 60 * 60 * 24);
-
-    ttr = totalDays > 0 ? daysInThreshold / totalDays : 0;
+    // Case 2: Cross both bounds (below minA to above maxB or vice versa)
+    else if (
+      (prevVal < minA && currVal > maxB) ||
+      (prevVal > maxB && currVal < minA)
+    ) {
+      daysInRange +=
+        intervalDays * ((maxB - minA) / Math.abs(currVal - prevVal));
+    }
+    // Case 3: One inside, one below min
+    else if (
+      (prevVal < minA && currVal >= minA && currVal <= maxB) ||
+      (currVal < minA && prevVal >= minA && prevVal <= maxB)
+    ) {
+      const frac =
+        (minA - Math.min(prevVal, currVal)) / Math.abs(currVal - prevVal);
+      daysInRange += intervalDays * (1 - frac);
+    }
+    // Case 4: One inside, one above max
+    else if (
+      (prevVal > maxB && currVal >= minA && currVal <= maxB) ||
+      (currVal > maxB && prevVal >= minA && prevVal <= maxB)
+    ) {
+      const frac =
+        (Math.max(prevVal, currVal) - maxB) / Math.abs(currVal - prevVal);
+      daysInRange += intervalDays * (1 - frac);
+    }
+    // Case 5: Entirely outside → contributes nothing
   }
+
+  const ttr = totalDays > 0 ? daysInRange / totalDays : 0;
 
   return (
     <View className="w-screen ">
       <ScrollView className=" bg-gray-50">
         {/* Date Range Pickers */}
-        <View className="flex-row justify-center gap-x-2 bg-blue-600 mb-4">
+        <View className="flex-row justify-center gap-x-2  mb-4">
           <Button
             className="mr-2 "
             onPress={() => setShowPicker({ visible: true, mode: "from" })}
@@ -175,23 +211,23 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
         </View>
 
         {/* Stats Card */}
-        <View className="bg-white rounded-xl  p-2 w-screen">
+        <View className="bg-white rounded-xl mx-2 p-2 ">
           <Text className="text-lg font-semibold mb-3 text-gray-700">
             Statistiques
           </Text>
-          <View className="flex-row justify-between w-screen mb-2">
+          <View className="flex-row justify-between  mb-2">
             <Text className="text-gray-600">Total des enregistrements :</Text>
             <Text className="font-medium text-gray-800">{total}</Text>
           </View>
-          <View className="flex-row justify-between w-screen mb-2">
-            <Text className="text-gray-600">Dans la plage :</Text>
-            <Text className="font-medium text-gray-800">{inRangeCount}</Text>
+          <View className="flex-row justify-between mb-2 ">
+            <Text className="text-gray-600">
+              Jours approximatifs dans la plage :
+            </Text>
+            <Text className="font-medium text-gray-800">
+              {Math.round(daysInRange)}
+            </Text>
           </View>
-          <View className="flex-row justify-between mb-2 w-screen">
-            <Text className="text-gray-600">Seuil dépassé :</Text>
-            <Text className="font-medium text-red-500">{exceededCount}</Text>
-          </View>
-          <View className="flex-row justify-between w-screen">
+          <View className="flex-row justify-between ">
             <Text className="text-gray-600">TTR :</Text>
             <Text className="font-medium text-gray-800">
               {(ttr * 100).toFixed(1)}%

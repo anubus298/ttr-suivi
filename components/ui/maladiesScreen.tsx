@@ -157,9 +157,7 @@ const ActionMaladieButton = ({
               control={form.control}
               render={({ field }) => (
                 <View className="my-2">
-                  <Text className="mb-2 text-lg font-outfitSemibold">
-                    Nom complet:
-                  </Text>
+                  <Text className="mb-2 text-lg font-outfitSemibold">Nom</Text>
                   <Input
                     placeholder="Write some stuff..."
                     value={field.value}
@@ -180,7 +178,7 @@ const ActionMaladieButton = ({
               render={({ field }) => (
                 <View className="my-2">
                   <Text className="mb-2 text-lg font-outfitSemibold">
-                    min A
+                    INR min
                   </Text>
                   <Input
                     placeholder="Write some stuff..."
@@ -203,7 +201,7 @@ const ActionMaladieButton = ({
               render={({ field }) => (
                 <View className="my-2">
                   <Text className="mb-2 text-lg font-outfitSemibold">
-                    max B
+                    INR Max
                   </Text>
                   <Input
                     placeholder="Write some stuff..."
@@ -219,28 +217,6 @@ const ActionMaladieButton = ({
                 </View>
               )}
               name="maxB"
-            />
-
-            <Controller
-              control={form.control}
-              render={({ field }) => (
-                <View className="my-2">
-                  <Text className="mb-2 text-lg font-outfitSemibold">
-                    Unité:
-                  </Text>
-                  <Input
-                    placeholder="Write some stuff..."
-                    value={field.value}
-                    onChangeText={field.onChange}
-                  />
-                  {form.formState.errors.unit && (
-                    <Text className="text-red-500">
-                      {form.formState.errors.unit.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-              name="unit"
             />
           </View>
         </DialogHeader>
@@ -396,7 +372,6 @@ const MaladiesScreen = () => {
     </>
   );
 };
-
 const MaladieCard = ({
   malady,
   setOpenData,
@@ -410,70 +385,110 @@ const MaladieCard = ({
 }) => {
   return (
     <View
-      className="m-1 w-full mx-2 h-auto rounded-md bg-white "
+      className="mx-2 mb-4 rounded-xl bg-white border border-gray-100"
       style={{
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
       }}
     >
-      <View className="flex justify-end items-end">
-        <DeleteMaladieButton maladie={malady} />
-        <Button
-          variant={"ghost"}
-          onPress={() => {
-            setOpenData({
-              open: false,
-              isUpdate: true,
-              maladie: malady,
-            });
-            setOpenData({
-              open: true,
-              isUpdate: true,
-              maladie: malady,
-            });
-          }}
-        >
-          <Pen size={16} />
-        </Button>
-      </View>
-      <View className="p-3 pb-2 flex  gap-y-1 items-center">
-        <Thermometer size={16} color={"red"} />
-        <Text className="text- font-outfitBold text-foreground truncate">
-          {malady.name}
-        </Text>
-      </View>
-      <View className="p-3 pt-0 space-y-6">
-        <View className="space-y-6 flex">
-          <View className="flex items-center justify-start gap-x-1 text-xs flex-row">
-            <ArrowBigUpDash size={16} />
-            <Text className="text-muted-foreground font-outfitSemibold">
-              Max:
-            </Text>
-            <Text className="font-medium">
-              {malady.maxB} {malady.unit}
-            </Text>
+      {/* Header with actions */}
+      <View className="flex-row justify-between items-start p-4 pb-2">
+        <View className="flex-row items-center gap-x-3">
+          <View className="bg-red-50 p-2 rounded-lg">
+            <Thermometer size={20} color="#ef4444" />
           </View>
-          <View className="flex items-center justify-start text-xs gap-x-1 flex-row">
-            <ArrowBigDownDash size={16} className="" />
-            <Text className="text-muted-foreground font-outfitSemibold">
-              Min:
+          <View className="flex-1">
+            <Text className="text-lg font-outfitBold text-gray-900 mb-1">
+              {malady.name}
             </Text>
-            <Text className="font-medium">
-              {malady.minA} {malady.unit}
+            <Text className="text-xs text-gray-500 font-outfitMedium">
+              Disease Information
             </Text>
           </View>
         </View>
-        <View className="text-xs px-2 py-0.5 w-full justify-center">
-          {malady.unit}
+
+        <View className="flex-row items-center gap-x-1">
+          <Button
+            variant="ghost"
+            className="p-2"
+            onPress={() => {
+              setOpenData({
+                open: false,
+                isUpdate: true,
+                maladie: malady,
+              });
+              setOpenData({
+                open: true,
+                isUpdate: true,
+                maladie: malady,
+              });
+            }}
+          >
+            <Pen size={16} color="#6b7280" />
+          </Button>
+          <DeleteMaladieButton maladie={malady} />
         </View>
-        <View className="mt-4">
-          <Text className="text-xs text-muted-foreground text-center">
-            {new Date(malady.created_at).toLocaleDateString()}
+      </View>
+
+      {/* INR Values Section */}
+      <View className="px-4 pb-4">
+        <View className="bg-gray-50 rounded-lg p-3">
+          <Text className="text-sm font-outfitSemibold text-gray-700 mb-3 text-center">
+            INR Range
           </Text>
+
+          <View className="flex-row justify-between items-center">
+            {/* Min Value */}
+            <View className="flex-1 items-center">
+              <View className="flex-row items-center mb-2">
+                <ArrowBigDownDash size={16} color="#10b981" />
+                <Text className="text-xs text-gray-500 font-outfitMedium ml-1">
+                  Minimum
+                </Text>
+              </View>
+              <Text className="text-lg font-outfitBold text-gray-900">
+                {malady.minA}
+              </Text>
+              <Text className="text-xs text-gray-500 font-outfitMedium">
+                {malady.unit}
+              </Text>
+            </View>
+
+            {/* Separator */}
+            <View className="w-px h-12 bg-gray-200 mx-4" />
+
+            {/* Max Value */}
+            <View className="flex-1 items-center">
+              <View className="flex-row items-center mb-2">
+                <ArrowBigUpDash size={16} color="#f59e0b" />
+                <Text className="text-xs text-gray-500 font-outfitMedium ml-1">
+                  Maximum
+                </Text>
+              </View>
+              <Text className="text-lg font-outfitBold text-gray-900">
+                {malady.maxB}
+              </Text>
+              <Text className="text-xs text-gray-500 font-outfitMedium">
+                {malady.unit}
+              </Text>
+            </View>
+          </View>
         </View>
+      </View>
+
+      {/* Footer with date */}
+      <View className="border-t border-gray-100 px-4 py-3">
+        <Text className="text-xs text-gray-400 text-center font-outfitMedium">
+          Created on{" "}
+          {new Date(malady.created_at).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </Text>
       </View>
     </View>
   );
