@@ -1,5 +1,4 @@
 import { Icon } from "@/components/ui/icon";
-import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@rn-primitives/select";
@@ -11,7 +10,6 @@ import {
 } from "lucide-react-native";
 import * as React from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import { FadeIn, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 type Option = SelectPrimitive.Option;
@@ -98,52 +96,52 @@ function SelectContent({
           style={Platform.select({ native: StyleSheet.absoluteFill })}
         >
           <TextClassContext.Provider value="text-popover-foreground">
-            <NativeOnlyAnimatedView
+            {/* <NativeOnlyAnimatedView
               className="z-50"
               entering={FadeIn}
               exiting={FadeOut}
-            >
-              <SelectPrimitive.Content
-                className={cn(
-                  "bg-popover border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
+            > */}
+            <SelectPrimitive.Content
+              className={cn(
+                "bg-popover border-border font-outfitRegular relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
+                Platform.select({
+                  web: cn(
+                    "animate-in fade-in-0 zoom-in-95 origin-(--radix-select-content-transform-origin) max-h-52 overflow-y-auto overflow-x-hidden",
+                    props.side === "bottom" && "slide-in-from-top-2",
+                    props.side === "top" && "slide-in-from-bottom-2"
+                  ),
+                  native: "p-1",
+                }),
+                position === "popper" &&
                   Platform.select({
                     web: cn(
-                      "animate-in fade-in-0 zoom-in-95 origin-(--radix-select-content-transform-origin) max-h-52 overflow-y-auto overflow-x-hidden",
-                      props.side === "bottom" && "slide-in-from-top-2",
-                      props.side === "top" && "slide-in-from-bottom-2"
+                      props.side === "bottom" && "translate-y-1",
+                      props.side === "top" && "-translate-y-1"
                     ),
-                    native: "p-1",
                   }),
+                className
+              )}
+              position={position}
+              {...props}
+            >
+              <SelectScrollUpButton />
+              <SelectPrimitive.Viewport
+                className={cn(
+                  "p-1",
                   position === "popper" &&
-                    Platform.select({
-                      web: cn(
-                        props.side === "bottom" && "translate-y-1",
-                        props.side === "top" && "-translate-y-1"
-                      ),
-                    }),
-                  className
+                    cn(
+                      "w-full",
+                      Platform.select({
+                        web: "h-[var(--radix-select-trigger-height)] min-w-[var(--radix-select-trigger-width)]",
+                      })
+                    )
                 )}
-                position={position}
-                {...props}
               >
-                <SelectScrollUpButton />
-                <SelectPrimitive.Viewport
-                  className={cn(
-                    "p-1",
-                    position === "popper" &&
-                      cn(
-                        "w-full",
-                        Platform.select({
-                          web: "h-[var(--radix-select-trigger-height)] min-w-[var(--radix-select-trigger-width)]",
-                        })
-                      )
-                  )}
-                >
-                  {children}
-                </SelectPrimitive.Viewport>
-                <SelectScrollDownButton />
-              </SelectPrimitive.Content>
-            </NativeOnlyAnimatedView>
+                {children}
+              </SelectPrimitive.Viewport>
+              <SelectScrollDownButton />
+            </SelectPrimitive.Content>
+            {/* </NativeOnlyAnimatedView> */}
           </TextClassContext.Provider>
         </SelectPrimitive.Overlay>
       </FullWindowOverlay>
@@ -158,7 +156,7 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       className={cn(
-        "text-muted-foreground px-2 py-2 text-xs sm:py-1.5",
+        "text-muted-foreground font-outfitRegular px-2 py-2 text-xs sm:py-1.5",
         className
       )}
       {...props}
@@ -174,7 +172,7 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "active:bg-accent group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5",
+        "active:bg-accent group font-outfitRegular relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5",
         Platform.select({
           web: "focus:bg-accent focus:text-accent-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 cursor-default outline-none data-[disabled]:pointer-events-none [&_svg]:pointer-events-none",
         }),
@@ -183,12 +181,15 @@ function SelectItem({
       )}
       {...props}
     >
-      <View className="absolute right-2 flex size-3.5 items-center justify-center">
+      <View className="absolute right-2 font-outfitRegular flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
+          <Icon
+            as={Check}
+            className="text-muted-foreground font-outfitRegular size-4 shrink-0"
+          />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
+      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground font-outfitRegular select-none text-sm" />
     </SelectPrimitive.Item>
   );
 }

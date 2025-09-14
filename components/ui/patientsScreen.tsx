@@ -202,7 +202,10 @@ const ActionPatientButton = ({
                     }
                   >
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Choisir" />
+                      <SelectValue
+                        placeholder="Choisir"
+                        className="font-outfitRegular"
+                      />
                     </SelectTrigger>
                     <SelectContent
                       insets={contentInsets}
@@ -211,7 +214,7 @@ const ActionPatientButton = ({
                       <NativeSelectScrollView>
                         {maladies?.map((ml) => (
                           <SelectItem
-                            className="font-outfitSemibold"
+                            className="font-outfitRegular"
                             key={ml.id + "maladie-select-item"}
                             label={ml.name}
                             value={ml.id.toString()}

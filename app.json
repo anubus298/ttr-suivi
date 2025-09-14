@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0154AF"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anubus298.ttrsuivi"
