@@ -1,0 +1,51 @@
+diff --git a/node_modules/react-native-css-interop/.cache/android.js b/node_modules/react-native-css-interop/.cache/android.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-css-interop/.cache/ios.js b/node_modules/react-native-css-interop/.cache/ios.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-css-interop/.cache/macos.js b/node_modules/react-native-css-interop/.cache/macos.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-css-interop/.cache/native.js b/node_modules/react-native-css-interop/.cache/native.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-css-interop/.cache/windows.js b/node_modules/react-native-css-interop/.cache/windows.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-css-interop/dist/runtime/native/api.js b/node_modules/react-native-css-interop/dist/runtime/native/api.js
+index 5ea02d8..3fdbe96 100644
+--- a/node_modules/react-native-css-interop/dist/runtime/native/api.js
++++ b/node_modules/react-native-css-interop/dist/runtime/native/api.js
+@@ -24,7 +24,7 @@ const cssInterop = (baseComponent, mapping) => {
+     const type = (0, unwrap_components_1.getComponentType)(baseComponent);
+     if (type === "function") {
+         component = (props) => {
+-            return (0, native_interop_1.interop)(baseComponent, configs, props, undefined);
++            return (0, native_interop_1.interop)(baseComponent, configs, props, props.ref);
+         };
+     }
+     else {
+diff --git a/node_modules/react-native-css-interop/src/runtime/native/api.ts b/node_modules/react-native-css-interop/src/runtime/native/api.ts
+index 9943f0c..1850a64 100644
+--- a/node_modules/react-native-css-interop/src/runtime/native/api.ts
++++ b/node_modules/react-native-css-interop/src/runtime/native/api.ts
+@@ -19,8 +19,8 @@ import { interop } from "./native-interop";
+ import { getVariable, opaqueStyles, VariableContext } from "./styles";
+ import { getComponentType } from "./unwrap-components";
+ 
+-export { StyleSheet } from "./stylesheet";
+ export { colorScheme } from "./appearance-observables";
++export { StyleSheet } from "./stylesheet";
+ export { rem } from "./unit-observables";
+ 
+ export const interopComponents = new Map<
+@@ -46,7 +46,7 @@ export const cssInterop: CssInterop = (baseComponent, mapping): any => {
+    */
+   if (type === "function") {
+     component = (props: Record<string, any>) => {
+-      return interop(baseComponent, configs, props, undefined);
++      return interop(baseComponent, configs, props, props.ref);
+     };
+   } else {
+     component = forwardRef((props, ref) => {

@@ -1,19 +1,48 @@
-import "../global.css";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
+import { Text } from "@/components/ui/text";
+import migrations from "@/drizzle/migrations";
+import { checkIfAgreed } from "@/lib/api/settings.api";
+import { db, runSeed } from "@/lib/db";
 import { PortalHost } from "@rn-primitives/portal";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
 import { useEffect } from "react";
-import migrations from "@/drizzle/migrations";
 import { View } from "react-native";
-import { db, runSeed } from "@/lib/db";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Text } from "@/components/ui/text";
+import "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+import "../global.css";
 const queryClient = new QueryClient();
-export default function RootLayout() {
+
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
+SplashScreen.preventAutoHideAsync();
+
+export default function QueryWrapper() {
+  return (
+    <SafeAreaView className="flex-1">
+      <QueryClientProvider client={queryClient}>
+        <RootLayout />
+      </QueryClientProvider>
+    </SafeAreaView>
+  );
+}
+
+function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
+  const { data: isAgreed } = useQuery({
+    queryKey: ["checkIfAgreed"],
+    queryFn: checkIfAgreed,
+    staleTime: 0,
+  });
   const [loaded] = useFonts({
     outfitLight: require("../assets/fonts/300.ttf"),
     outfitRegular: require("../assets/fonts/400.ttf"),
@@ -26,7 +55,9 @@ export default function RootLayout() {
       console.log(error?.message, error?.stack);
       return;
     }
+
     runSeed();
+    SplashScreen.hideAsync();
   }, [success]);
   if (!loaded) {
     return null;
@@ -40,14 +71,33 @@ export default function RootLayout() {
   }
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <Stack>
+      <Stack
+        screenOptions={{
+          animation: "fade",
+        }}
+      >
+        <Stack.Protected guard={!!isAgreed}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="inverted" />
-        <PortalHost />
-      </QueryClientProvider>
+          <Stack.Screen
+            name="records"
+            options={{
+              headerShown: true,
+              headerTitle: () => (
+                <Text className="font-outfitSemibold text-xl">
+                  Dossiers Patients
+                </Text>
+              ),
+            }}
+          />
+          <Stack.Screen name="settings" options={{ headerShown: true }} />
+        </Stack.Protected>
+        <Stack.Protected guard={!isAgreed}>
+          <Stack.Screen name="welcoming" options={{ headerShown: false }} />
+        </Stack.Protected>
+        <Stack.Screen name="+not-found" options={{}} />
+      </Stack>
+      <StatusBar style="inverted" />
+      <PortalHost />
     </>
   );
 }

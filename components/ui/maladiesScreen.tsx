@@ -1,4 +1,26 @@
+import { maladiesTable } from "@/db/schema";
+import {
+  addMaladie,
+  deleteMaladie,
+  getAllMaladies,
+  updateMaladie,
+} from "@/lib/api/maladies.api";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowBigDownDash,
+  ArrowBigUpDash,
+  Filter,
+  Pen,
+  Plus,
+  Search,
+  Thermometer,
+  Trash,
+} from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -8,31 +30,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { View, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import {
-  Search,
-  Filter,
-  Plus,
-  Trash,
-  Thermometer,
-  ArrowBigUpDash,
-  ArrowBigDownDash,
-  Pen,
-} from "lucide-react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./button";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Input } from "./input";
 import { Text } from "./text";
-import {
-  addMaladie,
-  deleteMaladie,
-  getAllMaladies,
-  updateMaladie,
-} from "@/lib/api/maladies.api";
-import { maladiesTable } from "@/db/schema";
 const MaladieSchema = z
   .object({
     name: z
@@ -225,7 +225,7 @@ const ActionMaladieButton = ({
             // disabled={!form.formState.isValid}
             onPress={form.handleSubmit(onSubmit)}
           >
-            <Text>Enregistrer</Text>
+            <Text className="font-outfitSemibold">Enregistrer</Text>
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -273,7 +273,7 @@ const DeleteMaladieButton = ({
         </DialogHeader>
         <DialogFooter>
           <Button onPress={onSubmit} variant={"destructive"}>
-            <Text>Supprimer</Text>
+            <Text className="font-outfitSemibold">Supprimer</Text>
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -296,7 +296,7 @@ const MaladiesScreen = () => {
     searchQuery.length <= 1
       ? maladies
       : maladies?.filter((maladie) =>
-          maladie.name.toString().includes(searchQuery.toLowerCase()),
+          maladie.name.toString().includes(searchQuery.toLowerCase())
         );
 
   return (
@@ -312,7 +312,7 @@ const MaladiesScreen = () => {
               <Text className="text-2xl font-outfitBold text-gray-900">
                 Maladies
               </Text>
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm text-muted-foreground font-outfitRegular">
                 {filteredMaladies?.length ?? 0} maladies trouvés
               </Text>
             </View>
@@ -325,7 +325,7 @@ const MaladiesScreen = () => {
                   maladie: undefined,
                 })
               }
-              className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+              className="w-12 h-12 bg-primary rounded-full items-center justify-center"
               activeOpacity={0.8}
             >
               <Plus size={24} color="white" />
@@ -337,7 +337,7 @@ const MaladiesScreen = () => {
             <View className="flex-1 bg-gray-50 rounded-2xl px-4 py-3 flex-row items-center">
               <Search size={20} color="#6B7280" />
               <TextInput
-                className="flex-1 ml-3 text-base text-gray-900"
+                className="flex-1 font-outfitRegular ml-3 text-base text-gray-900"
                 placeholder="Rechercher un maladie..."
                 placeholderTextColor="#9CA3AF"
                 value={searchQuery}
@@ -404,7 +404,7 @@ const MaladieCard = ({
             <Text className="text-lg font-outfitBold text-gray-900 mb-1">
               {malady.name}
             </Text>
-            <Text className="text-xs text-gray-500 font-outfitMedium">
+            <Text className="text-xs text-muted-foreground font-outfitRegular ">
               Disease Information
             </Text>
           </View>
@@ -445,14 +445,14 @@ const MaladieCard = ({
             <View className="flex-1 items-center">
               <View className="flex-row items-center mb-2">
                 <ArrowBigDownDash size={16} color="#10b981" />
-                <Text className="text-xs text-gray-500 font-outfitMedium ml-1">
+                <Text className="text-xs text-muted-foreground font-outfitRegular  ml-1">
                   Minimum
                 </Text>
               </View>
               <Text className="text-lg font-outfitBold text-gray-900">
                 {malady.minA}
               </Text>
-              <Text className="text-xs text-gray-500 font-outfitMedium">
+              <Text className="text-xs text-muted-foreground font-outfitRegular ">
                 {malady.unit}
               </Text>
             </View>
@@ -464,14 +464,14 @@ const MaladieCard = ({
             <View className="flex-1 items-center">
               <View className="flex-row items-center mb-2">
                 <ArrowBigUpDash size={16} color="#f59e0b" />
-                <Text className="text-xs text-gray-500 font-outfitMedium ml-1">
+                <Text className="text-xs text-muted-foreground font-outfitRegular  ml-1">
                   Maximum
                 </Text>
               </View>
               <Text className="text-lg font-outfitBold text-gray-900">
                 {malady.maxB}
               </Text>
-              <Text className="text-xs text-gray-500 font-outfitMedium">
+              <Text className="text-xs text-muted-foreground font-outfitRegular ">
                 {malady.unit}
               </Text>
             </View>
@@ -481,7 +481,7 @@ const MaladieCard = ({
 
       {/* Footer with date */}
       <View className="border-t border-gray-100 px-4 py-3">
-        <Text className="text-xs text-gray-400 text-center font-outfitMedium">
+        <Text className="text-xs text-gray-400 text-center  font-outfitRegular">
           Created on{" "}
           {new Date(malady.created_at).toLocaleDateString("en-US", {
             year: "numeric",

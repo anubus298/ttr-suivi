@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { int, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { int, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const settingsTable = sqliteTable("settings", {
+  id: int().primaryKey({ autoIncrement: true }),
+  doctorName: text().notNull(),
+  title: text().notNull().default("Médecin généraliste"),
+  isAgreed: integer({ mode: "boolean" }).notNull(),
+});
 
 export const maladiesTable = sqliteTable("maladies", {
   id: int().primaryKey({ autoIncrement: true }),

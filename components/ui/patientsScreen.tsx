@@ -1,12 +1,42 @@
-import React, { useEffect, useState } from "react";
-import { patientsTable } from "@/db/schema";
 import {
+  NativeSelectScrollView,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { patientsTable } from "@/db/schema";
+import { getAllMaladies } from "@/lib/api/maladies.api";
+import {
+  addPatient,
+  deletePatient,
+  getAllPatients,
+  updatePatient,
+} from "@/lib/api/patients.api";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import {
+  Building2,
+  Filter,
+  Plus,
+  Search,
+  Thermometer,
+  Trash,
+  User,
+} from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -16,38 +46,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  View,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Platform,
-} from "react-native";
-import {
-  Search,
-  Filter,
-  Plus,
-  User,
-  Building2,
-  Thermometer,
-  Trash,
-} from "lucide-react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  addPatient,
-  deletePatient,
-  getAllPatients,
-  updatePatient,
-} from "@/lib/api/patients.api";
 import { Button } from "./button";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Input } from "./input";
 import { Text } from "./text";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getAllMaladies } from "@/lib/api/maladies.api";
-import { useRouter } from "expo-router";
 const PatientSchema = z.object({
   full_name: z.string().min(2),
   hospital_id: z.string().nullable(),
@@ -134,6 +135,7 @@ const ActionPatientButton = ({
     left: 12,
     right: 12,
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -202,16 +204,22 @@ const ActionPatientButton = ({
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Choisir" />
                     </SelectTrigger>
-                    <SelectContent insets={contentInsets} className="w-[180px]">
-                      {maladies?.map((ml) => (
-                        <SelectItem
-                          key={ml.id + "maladie-select-item"}
-                          label={ml.name}
-                          value={ml.id.toString()}
-                        >
-                          {ml.name}
-                        </SelectItem>
-                      ))}
+                    <SelectContent
+                      insets={contentInsets}
+                      className="z-50 w-[180px]"
+                    >
+                      <NativeSelectScrollView>
+                        {maladies?.map((ml) => (
+                          <SelectItem
+                            className="font-outfitSemibold"
+                            key={ml.id + "maladie-select-item"}
+                            label={ml.name}
+                            value={ml.id.toString()}
+                          >
+                            {ml.name}
+                          </SelectItem>
+                        ))}
+                      </NativeSelectScrollView>
                     </SelectContent>
                   </Select>
                 </View>
@@ -306,7 +314,7 @@ const PatientsScreen = () => {
             patient.maladieId.toString().includes(searchQuery.toLowerCase()) ||
             patient.hospital_id
               ?.toLowerCase()
-              .includes(searchQuery.toLowerCase()),
+              .includes(searchQuery.toLowerCase())
         );
 
   return (
@@ -324,7 +332,7 @@ const PatientsScreen = () => {
               <Text className="text-2xl font-outfitBold text-gray-900">
                 Patients
               </Text>
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm text-gray-500 font-outfitRegular">
                 {filteredPatients?.length ?? 0} patients trouvés
               </Text>
             </View>
@@ -337,7 +345,7 @@ const PatientsScreen = () => {
                   patient: undefined,
                 })
               }
-              className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+              className="w-12 h-12 bg-primary rounded-full items-center justify-center"
               activeOpacity={0.8}
             >
               <Plus size={24} color="white" />
@@ -349,7 +357,7 @@ const PatientsScreen = () => {
             <View className="flex-1 bg-gray-50 rounded-2xl px-4 py-3 flex-row items-center">
               <Search size={20} color="#6B7280" />
               <TextInput
-                className="flex-1 ml-3 text-base text-gray-900"
+                className="font-outfitRegular flex-1 ml-3 text-base text-gray-900"
                 placeholder="Rechercher un patient..."
                 placeholderTextColor="#9CA3AF"
                 value={searchQuery}
@@ -439,10 +447,10 @@ const PatientCard = ({
             <Building2 size={16} color="#2563EB" />
           </View>
           <View>
-            <Text className="text-xs font-outfitSemibold text-blue-600 uppercase tracking-wide">
+            <Text className="text-xs font-outfitSemibold text-primary uppercase tracking-wide">
               Hôpital ID
             </Text>
-            <Text className="text-base font-outfitSemibold text-blue-900">
+            <Text className="text-base font-outfitSemibold text-primary/90">
               {patient.hospital_id}
             </Text>
           </View>
@@ -469,8 +477,10 @@ const PatientCard = ({
       <View className="mt-4 pt-4 border-t border-gray-100">
         <Dialog open={detailsIsOpen} onOpenChange={setDetailsIsOpen}>
           <DialogTrigger asChild>
-            <Button variant={"outline"}>
-              <Text>Touchez pour voir plus de détails</Text>
+            <Button>
+              <Text className="font-outfitSemibold">
+                Touchez pour voir plus de détails
+              </Text>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[400px]">
@@ -486,12 +496,14 @@ const PatientCard = ({
                       patient.maladieId +
                       "&" +
                       "userId=" +
-                      patient.id,
+                      patient.id
                   );
                   setDetailsIsOpen(false);
                 }}
               >
-                <Text className="text-background">Voir le graphe</Text>
+                <Text className="text-background font-outfitSemibold">
+                  Voir le graphe
+                </Text>
               </Button>
 
               <Button
@@ -505,7 +517,9 @@ const PatientCard = ({
                 }}
                 className=""
               >
-                <Text className="text-background">Modifier</Text>
+                <Text className="text-background font-outfitSemibold">
+                  Modifier
+                </Text>
               </Button>
             </View>
           </DialogContent>

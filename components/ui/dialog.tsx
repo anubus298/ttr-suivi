@@ -35,7 +35,7 @@ function DialogOverlay({
           Platform.select({
             web: "animate-in fade-in-0 fixed cursor-default [&>*]:cursor-auto",
           }),
-          className,
+          className
         )}
         {...props}
         asChild={Platform.OS !== "web"}
@@ -73,7 +73,7 @@ function DialogContent({
             Platform.select({
               web: "animate-in fade-in-0 zoom-in-95 duration-200",
             }),
-            className,
+            className
           )}
           {...props}
         >
@@ -83,14 +83,14 @@ function DialogContent({
               "absolute right-4 top-4 rounded opacity-70 active:opacity-100",
               Platform.select({
                 web: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2",
-              }),
+              })
             )}
             hitSlop={12}
           >
             <Icon
               as={X}
               className={cn(
-                "text-accent-foreground web:pointer-events-none size-4 shrink-0",
+                "text-accent-foreground web:pointer-events-none size-4 shrink-0"
               )}
             />
             <Text className="sr-only">Close</Text>
@@ -115,7 +115,7 @@ function DialogFooter({ className, ...props }: ViewProps) {
     <View
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className,
+        className
       )}
       {...props}
     />
@@ -129,8 +129,8 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       className={cn(
-        "text-foreground text-lg font-semibold leading-none",
-        className,
+        "text-foreground text-lg font-outfitSemibold leading-none",
+        className
       )}
       {...props}
     />
@@ -144,7 +144,10 @@ function DialogDescription({
   React.RefAttributes<DialogPrimitive.DescriptionRef>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(
+        "text-muted-foreground font-outfitRegular text-sm",
+        className
+      )}
       {...props}
     />
   );

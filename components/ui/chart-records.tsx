@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Dimensions, View, ScrollView } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { LineChart } from "react-native-chart-kit";
 import { patientsInrRecordsTable } from "@/db/schema";
-import { Text } from "./text";
+import { useState } from "react";
+import { Dimensions, ScrollView, View } from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Button } from "./button";
+import { Text } from "./text";
 
 interface Props {
   records: (typeof patientsInrRecordsTable.$inferInsert)[];
@@ -24,7 +24,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   if (!records?.length) {
     return (
       <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-gray-500 text-lg">
+        <Text className="text-muted-foreground font-outfitSemibold text-lg">
           Aucun enregistrement disponible
         </Text>
       </View>
@@ -33,7 +33,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
 
   const sortedRecords = [...records].sort(
     (a, b) =>
-      new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime(),
+      new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
   );
 
   const filteredRecords = sortedRecords.filter((r) => {
@@ -47,7 +47,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   if (!total) {
     return (
       <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-gray-500 text-lg">
+        <Text className="text-muted-foreground font-outfitSemibold text-lg">
           Aucun enregistrement trouvé dans cette période
         </Text>
       </View>
@@ -63,8 +63,8 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const totalDays = Math.max(
     1,
     Math.round(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-    ),
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    )
   );
 
   const maxLabels = 6;
@@ -73,7 +73,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const labelDates: Date[] = [];
   for (let i = 0; i < maxLabels; i++) {
     labelDates.push(
-      new Date(startDate.getTime() + i * stepDays * 24 * 60 * 60 * 1000),
+      new Date(startDate.getTime() + i * stepDays * 24 * 60 * 60 * 1000)
     );
   }
 
@@ -88,7 +88,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
     new Date(r.recorded_at).toLocaleDateString("fr-FR", {
       month: "2-digit",
       day: "2-digit",
-    }),
+    })
   );
 
   const data = filteredRecords.map((r) => r.value);
@@ -138,7 +138,12 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
     const prevVal = prev.value;
     const currVal = curr.value;
 
-    if (prevVal >= minA && prevVal <= maxB && currVal >= minA && currVal <= maxB) {
+    if (
+      prevVal >= minA &&
+      prevVal <= maxB &&
+      currVal >= minA &&
+      currVal <= maxB
+    ) {
       daysInRange += intervalDays;
     } else if (
       (prevVal < minA && currVal > maxB) ||
@@ -166,113 +171,117 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const ttr = totalDaysForTTR > 0 ? daysInRange / totalDaysForTTR : 0;
 
   return (
-    <View className="w-screen ">
-      <ScrollView className=" bg-gray-50">
-        {/* Date Range Pickers */}
-        <View className="flex-row justify-center gap-x-2  mb-4">
-          <Button
+    <ScrollView className=" bg-background">
+      <View className="w-screen  ">
+        <View className="">
+          {/* Date Range Pickers */}
 
-            className="mr-2 bg-blue-500 active:bg-blue-500/50 "
-            onPress={() => setShowPicker({ visible: true, mode: "from" })}
-          >
-            <Text className="text-white font-medium">
-              De: {fromDate ? fromDate.toLocaleDateString() : "Début"}
-            </Text>
-          </Button>
-          <Button
-            className="ml-2 bg-blue-500 active:bg-blue-500/50 "
-            
-            onPress={() => setShowPicker({ visible: true, mode: "to" })}
-          >
-            <Text className="text-white font-medium">
-              À: {toDate ? toDate.toLocaleDateString() : "Fin"}
-            </Text>
-          </Button>
-        </View>
-
-        <DateTimePickerModal
-          isVisible={showPicker.visible}
-          mode="date"
-          onConfirm={(date) => {
-            if (showPicker.mode === "from") setFromDate(date);
-            else setToDate(date);
-            setShowPicker({ visible: false, mode: showPicker.mode });
-          }}
-          onCancel={() =>
-            setShowPicker({ visible: false, mode: showPicker.mode })
-          }
-        />
-
-        {/* Chart Card */}
-        <View className="bg-white rounded-xl px-2 shadow mb-4">
-          <Text className="text-lg font-semibold mb-2 text-gray-700">
-            Enregistrements INR
-          </Text>
-          <LineChart
-            data={{
-              labels,
-              datasets: [
-                {
-                  data,
-                  color: () => "#4ade80",
-                  strokeWidth: 2,
-                  withDots: true,
-                },
-                {
-                  data: Array(labels.length).fill(minA),
-                  color: () => "#ef4444",
-                  strokeWidth: 2,
-                },
-                {
-                  data: Array(labels.length).fill(maxB),
-                  color: () => "#ef4444",
-                  strokeWidth: 2,
-                },
-              ],
-              legend: ["Enregistrements du patient"],
+          <DateTimePickerModal
+            isVisible={showPicker.visible}
+            mode="date"
+            onConfirm={(date) => {
+              if (showPicker.mode === "from") setFromDate(date);
+              else setToDate(date);
+              setShowPicker({ visible: false, mode: showPicker.mode });
             }}
-            width={Dimensions.get("window").width - 48}
-            height={240}
-            fromZero={false}
-            yAxisSuffix={" " + unit}
-            yAxisInterval={yStep}
-            chartConfig={{
-              backgroundGradientFrom: "#f3f4f6",
-              backgroundGradientTo: "#e5e7eb",
-              decimalPlaces: yStep < 1 ? 1 : 0,
-              color: (opacity = 1) => `rgba(34, 34, 34, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(55, 65, 81, ${opacity})`,
-              style: { borderRadius: 16 },
-            }}
-            style={{ borderRadius: 16 }}
+            onCancel={() =>
+              setShowPicker({ visible: false, mode: showPicker.mode })
+            }
           />
-        </View>
 
-        {/* Stats Card */}
-        <View className="bg-white rounded-xl mx-2 p-2 ">
-          <Text className="text-lg font-semibold mb-3 text-gray-700">
-            Statistiques
-          </Text>
-          <View className="flex-row justify-between  mb-2">
-            <Text className="text-gray-600">Total des enregistrements :</Text>
-            <Text className="font-medium text-gray-800">{total}</Text>
+          {/* Chart Card */}
+          <View className="bg-white flex items-center  rounded-xl px-2 shadow mb-4">
+            <Text className="text-lg font-outfitSemibold mb-2 text-gray-700">
+              Enregistrements INR
+            </Text>
+            <LineChart
+              data={{
+                labels,
+                datasets: [
+                  {
+                    data,
+                    color: () => "#4ade80",
+                    strokeWidth: 2,
+                    withDots: true,
+                  },
+                  {
+                    data: Array(labels.length).fill(minA),
+                    color: () => "#ef4444",
+                    strokeWidth: 2,
+                  },
+                  {
+                    data: Array(labels.length).fill(maxB),
+                    color: () => "#ef4444",
+                    strokeWidth: 2,
+                  },
+                ],
+                legend: ["Enregistrements du patient"],
+              }}
+              width={Dimensions.get("window").width - 48}
+              height={240}
+              fromZero={false}
+              yAxisSuffix={" " + unit}
+              yAxisInterval={yStep}
+              chartConfig={{
+                backgroundGradientFrom: "#f3f4f6",
+                backgroundGradientTo: "#e5e7eb",
+                decimalPlaces: yStep < 1 ? 1 : 0,
+                color: (opacity = 1) => `rgba(34, 34, 34, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(55, 65, 81, ${opacity})`,
+                style: { borderRadius: 16 },
+              }}
+              style={{ borderRadius: 16 }}
+            />
           </View>
-          <View className="flex-row justify-between mb-2 ">
-            <Text className="text-gray-600">
-              Jours approximatifs dans la plage :
-            </Text>
-            <Text className="font-medium text-gray-800">
-              {daysInRange.toFixed(2)}
-            </Text>
+
+          <View className="flex-row justify-center gap-x-2  mb-4">
+            <Button
+              className="mr-2 bg-primary active:bg-primary/50 "
+              onPress={() => setShowPicker({ visible: true, mode: "from" })}
+            >
+              <Text className="text-white font-outfitRegular">
+                De: {fromDate ? fromDate.toLocaleDateString() : "Début"}
+              </Text>
+            </Button>
+            <Button
+              className="ml-2 bg-primary active:bg-primary/50 "
+              onPress={() => setShowPicker({ visible: true, mode: "to" })}
+            >
+              <Text className="text-white font-outfitRegular">
+                À: {toDate ? toDate.toLocaleDateString() : "Fin"}
+              </Text>
+            </Button>
           </View>
-          <View className="flex-row justify-between ">
-            <Text className="text-gray-600">TTR :</Text>
-            <Text className="font-medium text-gray-800">
-              {(ttr * 100).toFixed(1)}%
+          {/* Stats Card */}
+          <View className="bg-white rounded-xl mx-2 p-2 ">
+            <Text className="text-lg font-outfitSemibold mb-3 text-gray-700">
+              Statistiques
             </Text>
+            <View className="flex-row justify-between  mb-2">
+              <Text className="text-muted-foreground font-outfitSemibold ">
+                Total des enregistrements :
+              </Text>
+              <Text className="font-outfitRegular text-gray-800">{total}</Text>
+            </View>
+            <View className="flex-row justify-between mb-2 ">
+              <Text className="text-muted-foreground font-outfitSemibold ">
+                Jours approximatifs dans la plage :
+              </Text>
+              <Text className="font-outfitRegular text-gray-800">
+                {daysInRange.toFixed(2)}
+              </Text>
+            </View>
+            <View className="flex-row justify-between ">
+              <Text className="text-primary font-outfitSemibold ">
+                TTR ({Math.floor(totalDaysForTTR)} jours) :
+              </Text>
+              <Text className="font-outfitSemibold text-primary ">
+                {(ttr * 100).toFixed(1)}%
+              </Text>
+            </View>
           </View>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 };

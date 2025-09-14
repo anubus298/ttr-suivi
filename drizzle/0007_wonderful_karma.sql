@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `title` text DEFAULT 'Médecin généraliste' NOT NULL;

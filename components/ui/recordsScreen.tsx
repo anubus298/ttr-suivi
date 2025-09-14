@@ -1,8 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { patientsInrRecordsTable } from "@/db/schema";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { patientsInrRecordsTable } from "@/db/schema";
+import { getMaladiById } from "@/lib/api/maladies.api";
+import { getPatientById } from "@/lib/api/patients.api";
+import {
+  addRecord,
+  deleteRecord,
+  getAllRecordsByUserAMaladieID,
+  updateRecord,
+} from "@/lib/api/records.api";
+import { primaryColor } from "@/lib/theme";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChartBar, Plus, TableOfContents, Trash } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { StyleSheet } from "react-native";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,24 +26,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { View, TouchableOpacity, ScrollView } from "react-native";
-import { Plus, Trash, ChartBar, TableOfContents } from "lucide-react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./button";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { ChartRecords } from "./chart-records";
 import { Input } from "./input";
 import { Text } from "./text";
-import {
-  addRecord,
-  deleteRecord,
-  getAllRecordsByUserAMaladieID,
-  updateRecord,
-} from "@/lib/api/records.api";
-import { getMaladiById } from "@/lib/api/maladies.api";
-import { getPatientById } from "@/lib/api/patients.api";
-import { ChartRecords } from "./chart-records";
 const PatientSchema = z.object({
   value: z.string({ message: "Valuer est requis" }),
   recorded_at: z.string(),
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: "row",
-    backgroundColor: "#6366f1",
+    backgroundColor: primaryColor,
     paddingVertical: 16,
   },
   row: {
@@ -170,13 +170,13 @@ export const RecordsScreen = (props: Props) => {
           <View className="flex-row items-center justify-between mb-6">
             <View>
               <Text className="text-2xl font-outfitBold text-gray-900">
-                {user?.[0].full_name} 
+                {user?.[0].full_name}
               </Text>
-              <Text className="text-sm text-gray-500 text-wrap">
-                {records?.length ?? 0} records trouvés 
+              <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
+                {records?.length ?? 0} records trouvés
               </Text>
 
-              <Text className="text-sm text-gray-500 text-wrap">
+              <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
                 {maladie?.[0].name}
               </Text>
             </View>
@@ -190,7 +190,7 @@ export const RecordsScreen = (props: Props) => {
                     record: undefined,
                   })
                 }
-                className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+                className="w-12 h-12 bg-primary rounded-full items-center justify-center"
                 activeOpacity={0.8}
               >
                 <Plus size={24} color="white" />
@@ -204,7 +204,7 @@ export const RecordsScreen = (props: Props) => {
                     setCurrentTab("chart");
                   }
                 }}
-                className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center"
+                className="w-12 h-12 bg-primary rounded-full items-center justify-center"
                 activeOpacity={0.8}
               >
                 {currentTab === "chart" && (
@@ -223,24 +223,32 @@ export const RecordsScreen = (props: Props) => {
           value={currentTab}
           //@ts-expect-error
           onValueChange={setCurrentTab}
-          className="w-[350px]"
+          className=""
         >
           <TabsContent value="table">
             <View style={styles.headerRow}>
               <View style={[styles.cell, styles.headerCell, styles.idColumn]}>
-                <Text style={styles.headerText}>ID</Text>
+                <Text className="font-outfitSemibold" style={styles.headerText}>
+                  ID
+                </Text>
               </View>
               <View
                 style={[styles.cell, styles.headerCell, styles.valueColumn]}
               >
-                <Text style={styles.headerText}>Valuer</Text>
+                <Text className="font-outfitSemibold" style={styles.headerText}>
+                  Valuer
+                </Text>
               </View>
               <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
-                <Text style={styles.headerText}>Date de capture</Text>
+                <Text className="font-outfitSemibold" style={styles.headerText}>
+                  Date de capture
+                </Text>
               </View>
 
               <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
-                <Text style={styles.headerText}>Actions</Text>
+                <Text className="font-outfitSemibold" style={styles.headerText}>
+                  Actions
+                </Text>
               </View>
             </View>
             <ScrollView style={styles.scrollContainer}>
@@ -253,18 +261,24 @@ export const RecordsScreen = (props: Props) => {
                   ]}
                 >
                   <View style={[styles.cell, styles.idColumn]}>
-                    <Text className="text-xs" style={styles.idText}>
+                    <Text
+                      className="text-xs font-outfitRegular"
+                      style={styles.idText}
+                    >
                       {r.id}
                     </Text>
                   </View>
 
                   <View style={[styles.cell, styles.valueColumn]}>
-                    <Text className="text-sm text-green-700">
+                    <Text className="text-sm font-outfitRegular text-center text-green-700">
                       {r.value} {maladie?.[0].unit}
                     </Text>
                   </View>
                   <View style={[styles.cell, styles.dateColumn]}>
-                    <Text className="text-xs" style={styles.dateText}>
+                    <Text
+                      className="text-xs font-outfitRegular text-center"
+                      style={styles.dateText}
+                    >
                       {formatDate(r.recorded_at)}
                     </Text>
                   </View>
@@ -285,7 +299,7 @@ export const RecordsScreen = (props: Props) => {
             </ScrollView>
           </TabsContent>
 
-          <TabsContent value="chart">
+          <TabsContent value="chart" className="">
             <ChartRecords
               maxB={maladie?.[0].maxB ?? 0}
               minA={maladie?.[0].minA ?? 0}
@@ -514,9 +528,10 @@ const ActionButton = ({
                   <Button
                     onPress={showDatePicker}
                     size={"sm"}
-                    variant={"ghost"}
+                    variant={"link"}
+                    className="p-2"
                   >
-                    <Text>Choisir la date</Text>
+                    <Text className="font-outfitSemibold">Choisir la date</Text>
                   </Button>
                 </View>
               )}
@@ -530,7 +545,7 @@ const ActionButton = ({
             //@ts-expect-error
             onPress={form.handleSubmit(onSubmit)}
           >
-            <Text>Enregistrer</Text>
+            <Text className="font-outfitSemibold">Enregistrer</Text>
           </Button>
         </DialogFooter>
       </DialogContent>

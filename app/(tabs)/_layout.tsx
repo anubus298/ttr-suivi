@@ -1,26 +1,28 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
+import { primaryColor } from "@/lib/theme";
 import { Cross, House, User } from "lucide-react-native";
+import { Text, View } from "react-native";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors["light"].tint,
-        headerShown: false,
+        tabBarActiveTintColor: primaryColor,
+        tabBarInactiveTintColor: "#000000",
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-          },
-          default: {},
-        }),
+        headerShown: false,
+        tabBarHideOnKeyboard: true,
+        tabBarStyle: {
+          height: 60,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 0,
+        },
+        tabBarBackground: () => <View className="bg-background flex-1"></View>,
       }}
     >
       <Tabs.Screen
@@ -28,6 +30,13 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <House size={28} color={color} />,
+          tabBarLabel: ({ focused }) => (
+            <Text
+              className={`text-sm font-outfitBold ${focused ? "text-primary" : "text-muted-foreground"}`}
+            >
+              Accueil
+            </Text>
+          ),
         }}
       />
       <Tabs.Screen
@@ -35,6 +44,13 @@ export default function TabLayout() {
         options={{
           title: "Patients",
           tabBarIcon: ({ color }) => <User size={28} color={color} />,
+          tabBarLabel: ({ focused }) => (
+            <Text
+              className={`text-sm font-outfitBold ${focused ? "text-primary" : "text-muted-foreground"}`}
+            >
+              Patients
+            </Text>
+          ),
         }}
       />
 
@@ -43,6 +59,13 @@ export default function TabLayout() {
         options={{
           title: "Maladies",
           tabBarIcon: ({ color }) => <Cross size={28} color={color} />,
+          tabBarLabel: ({ focused }) => (
+            <Text
+              className={`text-sm font-outfitBold ${focused ? "text-primary" : "text-muted-foreground"}`}
+            >
+              Maladies
+            </Text>
+          ),
         }}
       />
     </Tabs>
