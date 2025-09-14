@@ -357,7 +357,7 @@ const MaladiesScreen = () => {
         <ScrollView
           className=""
           bounces={false}
-          contentContainerClassName="flex flex-row justify-center mt-2 flex-wrap"
+          contentContainerClassName="flex flex-col justify-center mt-2"
           showsHorizontalScrollIndicator={false}
         >
           {filteredMaladies?.map((p) => (
@@ -385,7 +385,7 @@ const MaladieCard = ({
 }) => {
   return (
     <View
-      className="mx-2 mb-4 rounded-xl bg-white border border-gray-100"
+      className="mx-2 mb-4 rounded-xl bg-white border flex-1 border-gray-100"
       style={{
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
@@ -395,8 +395,8 @@ const MaladieCard = ({
       }}
     >
       {/* Header with actions */}
-      <View className="flex-row justify-between items-start p-4 pb-2">
-        <View className="flex-row items-center gap-x-3">
+      <View className="flex-row relative flex items-start p-4 pb-2">
+        <View className="flex-row flex items-center gap-x-3">
           <View className="bg-red-50 p-2 rounded-lg">
             <Thermometer size={20} color="#ef4444" />
           </View>
@@ -410,7 +410,7 @@ const MaladieCard = ({
           </View>
         </View>
 
-        <View className="flex-row items-center gap-x-1">
+        <View className="flex-col absolute right-0 top-0 flex items-center gap-x-1">
           <Button
             variant="ghost"
             className="p-2"

@@ -3,7 +3,7 @@ import { db } from "../db";
 import { eq, and } from "drizzle-orm";
 export const getAllRecordsByUserAMaladieID = async (
   userid: number,
-  recordId: number,
+  maladieId: number,
 ) => {
   const maladies = await db
     .select()
@@ -11,7 +11,7 @@ export const getAllRecordsByUserAMaladieID = async (
     .where(
       and(
         eq(patientsInrRecordsTable.patientId, userid),
-        eq(patientsInrRecordsTable.maladieId, recordId),
+        eq(patientsInrRecordsTable.maladieId, maladieId),
       ),
     );
   return maladies;

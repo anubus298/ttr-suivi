@@ -170,10 +170,14 @@ export const RecordsScreen = (props: Props) => {
           <View className="flex-row items-center justify-between mb-6">
             <View>
               <Text className="text-2xl font-outfitBold text-gray-900">
-                {user?.[0].full_name}
+                {user?.[0].full_name} 
               </Text>
-              <Text className="text-sm text-gray-500">
-                {records?.length ?? 0} records trouvés
+              <Text className="text-sm text-gray-500 text-wrap">
+                {records?.length ?? 0} records trouvés 
+              </Text>
+
+              <Text className="text-sm text-gray-500 text-wrap">
+                {maladie?.[0].name}
               </Text>
             </View>
 

@@ -44,18 +44,68 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   });
 
   const total = filteredRecords.length;
-  const data = filteredRecords.map((r) => r.value);
+  if (!total) {
+    return (
+      <View className="flex-1 justify-center items-center p-4">
+        <Text className="text-gray-500 text-lg">
+          Aucun enregistrement trouvé dans cette période
+        </Text>
+      </View>
+    );
+  }
+
+  // ----------------------
+  // Dynamic X axis labels (time-based)
+  // ----------------------
+  const startDate = fromDate ?? new Date(filteredRecords[0].recorded_at);
+  const endDate =
+    toDate ?? new Date(filteredRecords[filteredRecords.length - 1].recorded_at);
+  const totalDays = Math.max(
+    1,
+    Math.round(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+    ),
+  );
 
   const maxLabels = 6;
-  const step = total <= maxLabels ? 1 : Math.ceil(total / maxLabels);
-  const labels = filteredRecords.map((r, i) =>
-    i % step === 0
-      ? new Date(r.recorded_at).toLocaleDateString("fr-FR", {
-          month: "short",
-          day: "numeric",
-        })
-      : "",
+  const stepDays = Math.ceil(totalDays / (maxLabels - 1));
+
+  const labelDates: Date[] = [];
+  for (let i = 0; i < maxLabels; i++) {
+    labelDates.push(
+      new Date(startDate.getTime() + i * stepDays * 24 * 60 * 60 * 1000),
+    );
+  }
+
+  // const labels = labelDates.map((d) =>
+  //   d.toLocaleDateString("fr-FR", {
+  //     month: "2-digit",
+  //     day: "2-digit",
+  //   }),
+  // );
+
+  const labels = filteredRecords.map((r) =>
+    new Date(r.recorded_at).toLocaleDateString("fr-FR", {
+      month: "2-digit",
+      day: "2-digit",
+    }),
   );
+
+  const data = filteredRecords.map((r) => r.value);
+  // Match data to nearest label date
+  // const data: number[] = [];
+  // for (let i = 0; i < labelDates.length; i++) {
+  //   const closest = filteredRecords.reduce((prev, curr) => {
+  //     const diffPrev = Math.abs(
+  //       new Date(prev.recorded_at).getTime() - labelDates[i].getTime(),
+  //     );
+  //     const diffCurr = Math.abs(
+  //       new Date(curr.recorded_at).getTime() - labelDates[i].getTime(),
+  //     );
+  //     return diffCurr < diffPrev ? curr : prev;
+  //   });
+  //   data.push(closest.value);
+  // }
 
   const min = Math.min(...data, minA);
   const max = Math.max(...data, maxB);
@@ -72,7 +122,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   // Rosendaal-style TTR calculation
   // ----------------------
   let daysInRange = 0;
-  let totalDays = 0;
+  let totalDaysForTTR = 0;
 
   for (let i = 1; i < filteredRecords.length; i++) {
     const prev = filteredRecords[i - 1];
@@ -83,39 +133,27 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
     const intervalDays = (currDate - prevDate) / (1000 * 60 * 60 * 24);
 
     if (intervalDays <= 0) continue;
-    totalDays += intervalDays;
+    totalDaysForTTR += intervalDays;
 
     const prevVal = prev.value;
     const currVal = curr.value;
 
-    // Case 1: Both INRs in range
-    if (
-      prevVal >= minA &&
-      prevVal <= maxB &&
-      currVal >= minA &&
-      currVal <= maxB
-    ) {
+    if (prevVal >= minA && prevVal <= maxB && currVal >= minA && currVal <= maxB) {
       daysInRange += intervalDays;
-    }
-    // Case 2: Cross both bounds (below minA to above maxB or vice versa)
-    else if (
+    } else if (
       (prevVal < minA && currVal > maxB) ||
       (prevVal > maxB && currVal < minA)
     ) {
       daysInRange +=
         intervalDays * ((maxB - minA) / Math.abs(currVal - prevVal));
-    }
-    // Case 3: One inside, one below min
-    else if (
+    } else if (
       (prevVal < minA && currVal >= minA && currVal <= maxB) ||
       (currVal < minA && prevVal >= minA && prevVal <= maxB)
     ) {
       const frac =
         (minA - Math.min(prevVal, currVal)) / Math.abs(currVal - prevVal);
       daysInRange += intervalDays * (1 - frac);
-    }
-    // Case 4: One inside, one above max
-    else if (
+    } else if (
       (prevVal > maxB && currVal >= minA && currVal <= maxB) ||
       (currVal > maxB && prevVal >= minA && prevVal <= maxB)
     ) {
@@ -123,10 +161,9 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
         (Math.max(prevVal, currVal) - maxB) / Math.abs(currVal - prevVal);
       daysInRange += intervalDays * (1 - frac);
     }
-    // Case 5: Entirely outside → contributes nothing
   }
 
-  const ttr = totalDays > 0 ? daysInRange / totalDays : 0;
+  const ttr = totalDaysForTTR > 0 ? daysInRange / totalDaysForTTR : 0;
 
   return (
     <View className="w-screen ">
@@ -134,7 +171,8 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
         {/* Date Range Pickers */}
         <View className="flex-row justify-center gap-x-2  mb-4">
           <Button
-            className="mr-2 "
+
+            className="mr-2 bg-blue-500 active:bg-blue-500/50 "
             onPress={() => setShowPicker({ visible: true, mode: "from" })}
           >
             <Text className="text-white font-medium">
@@ -142,7 +180,8 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
             </Text>
           </Button>
           <Button
-            className="ml-2 "
+            className="ml-2 bg-blue-500 active:bg-blue-500/50 "
+            
             onPress={() => setShowPicker({ visible: true, mode: "to" })}
           >
             <Text className="text-white font-medium">
@@ -180,12 +219,12 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
                   withDots: true,
                 },
                 {
-                  data: Array(total).fill(minA),
+                  data: Array(labels.length).fill(minA),
                   color: () => "#ef4444",
                   strokeWidth: 2,
                 },
                 {
-                  data: Array(total).fill(maxB),
+                  data: Array(labels.length).fill(maxB),
                   color: () => "#ef4444",
                   strokeWidth: 2,
                 },
@@ -205,7 +244,6 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
               labelColor: (opacity = 1) => `rgba(55, 65, 81, ${opacity})`,
               style: { borderRadius: 16 },
             }}
-            bezier
             style={{ borderRadius: 16 }}
           />
         </View>
@@ -224,7 +262,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
               Jours approximatifs dans la plage :
             </Text>
             <Text className="font-medium text-gray-800">
-              {Math.round(daysInRange)}
+              {daysInRange.toFixed(2)}
             </Text>
           </View>
           <View className="flex-row justify-between ">
