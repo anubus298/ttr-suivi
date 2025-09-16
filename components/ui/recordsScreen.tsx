@@ -124,9 +124,6 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     fontWeight: "500",
   },
-  scrollContainer: {
-    maxHeight: 440,
-  },
 });
 export const RecordsScreen = (props: Props) => {
   const [currentTab, setCurrentTab] = useState<"chart" | "table">("table");
@@ -155,103 +152,121 @@ export const RecordsScreen = (props: Props) => {
     enabled: !!props.userId,
   });
   return (
-    <>
-      <View className="flex-1 bg-slate-50">
-        {/* Header */}
+    <ScrollView className="flex-1 my-2">
+      <>
+        <View className="flex-1 bg-slate-50">
+          {/* Header */}
 
-        <ActionButton
-          unit={maladie?.[0].unit ?? ""}
-          userId={props.userId}
-          maladieId={props.maladieId}
-          {...openData}
-          setOpen={(v) => setOpenData((prev) => ({ ...prev, open: v }))}
-        />
-        <View className="bg-white px-6 pt-14 pb-6">
-          <View className="flex-row items-center justify-between mb-6">
-            <View>
-              <Text className="text-2xl font-outfitBold text-gray-900">
-                {user?.[0].full_name}
-              </Text>
-              <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
-                {records?.length ?? 0} records trouvés
-              </Text>
+          <ActionButton
+            unit={maladie?.[0].unit ?? ""}
+            userId={props.userId}
+            maladieId={props.maladieId}
+            {...openData}
+            setOpen={(v) => setOpenData((prev) => ({ ...prev, open: v }))}
+          />
+          <View className="bg-white px-6 pt-14 pb-6">
+            <View className="flex-row items-center justify-between mb-6">
+              <View>
+                <Text className="text-2xl font-outfitBold text-gray-900">
+                  {user?.[0].full_name}
+                </Text>
+                <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
+                  {records?.length ?? 0} records trouvés
+                </Text>
 
-              <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
-                {maladie?.[0].name}
-              </Text>
-            </View>
+                <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
+                  {maladie?.[0].name}
+                </Text>
+              </View>
 
-            <View className="flex flex-row items-center gap-x-1">
-              <TouchableOpacity
-                onPress={() =>
-                  setOpenData({
-                    open: true,
-                    isUpdate: false,
-                    record: undefined,
-                  })
-                }
-                className="w-12 h-12 bg-primary rounded-full items-center justify-center"
-                activeOpacity={0.8}
-              >
-                <Plus size={24} color="white" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  if (currentTab === "chart") {
-                    setCurrentTab("table");
-                  } else {
-                    setCurrentTab("chart");
+              <View className="flex flex-row items-center gap-x-1">
+                <TouchableOpacity
+                  onPress={() =>
+                    setOpenData({
+                      open: true,
+                      isUpdate: false,
+                      record: undefined,
+                    })
                   }
-                }}
-                className="w-12 h-12 bg-primary rounded-full items-center justify-center"
-                activeOpacity={0.8}
-              >
-                {currentTab === "chart" && (
-                  <TableOfContents size={24} color={"white"} />
-                )}
-                {currentTab === "table" && <ChartBar size={24} color="white" />}
-              </TouchableOpacity>
+                  className="w-12 h-12 bg-primary rounded-full items-center justify-center"
+                  activeOpacity={0.8}
+                >
+                  <Plus size={24} color="white" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (currentTab === "chart") {
+                      setCurrentTab("table");
+                    } else {
+                      setCurrentTab("chart");
+                    }
+                  }}
+                  className="w-12 h-12 bg-primary rounded-full items-center justify-center"
+                  activeOpacity={0.8}
+                >
+                  {currentTab === "chart" && (
+                    <TableOfContents size={24} color={"white"} />
+                  )}
+                  {currentTab === "table" && (
+                    <ChartBar size={24} color="white" />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
+
+            {/* Search Bar */}
           </View>
 
-          {/* Search Bar */}
-        </View>
+          {/* Table Body */}
+          <Tabs
+            value={currentTab}
+            //@ts-expect-error
+            onValueChange={setCurrentTab}
+            className=""
+          >
+            <TabsContent value="table">
+              <View style={styles.headerRow}>
+                <View style={[styles.cell, styles.headerCell, styles.idColumn]}>
+                  <Text
+                    className="font-outfitSemibold"
+                    style={styles.headerText}
+                  >
+                    ID
+                  </Text>
+                </View>
+                <View
+                  style={[styles.cell, styles.headerCell, styles.valueColumn]}
+                >
+                  <Text
+                    className="font-outfitSemibold"
+                    style={styles.headerText}
+                  >
+                    Valuer
+                  </Text>
+                </View>
+                <View
+                  style={[styles.cell, styles.headerCell, styles.dateColumn]}
+                >
+                  <Text
+                    className="font-outfitSemibold"
+                    style={styles.headerText}
+                  >
+                    Date de capture
+                  </Text>
+                </View>
 
-        {/* Table Body */}
-        <Tabs
-          value={currentTab}
-          //@ts-expect-error
-          onValueChange={setCurrentTab}
-          className=""
-        >
-          <TabsContent value="table">
-            <View style={styles.headerRow}>
-              <View style={[styles.cell, styles.headerCell, styles.idColumn]}>
-                <Text className="font-outfitSemibold" style={styles.headerText}>
-                  ID
-                </Text>
+                <View
+                  style={[styles.cell, styles.headerCell, styles.dateColumn]}
+                >
+                  <Text
+                    className="font-outfitSemibold"
+                    style={styles.headerText}
+                  >
+                    Actions
+                  </Text>
+                </View>
               </View>
-              <View
-                style={[styles.cell, styles.headerCell, styles.valueColumn]}
-              >
-                <Text className="font-outfitSemibold" style={styles.headerText}>
-                  Valuer
-                </Text>
-              </View>
-              <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
-                <Text className="font-outfitSemibold" style={styles.headerText}>
-                  Date de capture
-                </Text>
-              </View>
-
-              <View style={[styles.cell, styles.headerCell, styles.dateColumn]}>
-                <Text className="font-outfitSemibold" style={styles.headerText}>
-                  Actions
-                </Text>
-              </View>
-            </View>
-            <ScrollView style={styles.scrollContainer}>
               {records?.map((r, index) => (
                 <View
                   key={r.id}
@@ -296,20 +311,20 @@ export const RecordsScreen = (props: Props) => {
                   </View>
                 </View>
               ))}
-            </ScrollView>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="chart" className="">
-            <ChartRecords
-              maxB={maladie?.[0].maxB ?? 0}
-              minA={maladie?.[0].minA ?? 0}
-              unit={maladie?.[0].unit ?? ""}
-              records={records ?? []}
-            />
-          </TabsContent>
-        </Tabs>
-      </View>
-    </>
+            <TabsContent value="chart" className="">
+              <ChartRecords
+                maxB={maladie?.[0].maxB ?? 0}
+                minA={maladie?.[0].minA ?? 0}
+                unit={maladie?.[0].unit ?? ""}
+                records={records ?? []}
+              />
+            </TabsContent>
+          </Tabs>
+        </View>
+      </>
+    </ScrollView>
   );
 };
 
@@ -478,7 +493,9 @@ const ActionButton = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isUpdate ? "Modifier un patient" : "Créer un patient"}
+            {isUpdate
+              ? "Modifier un unregistrement"
+              : "Créer un unregistrement"}
           </DialogTitle>
           <DialogDescription>
             {isUpdate
@@ -491,7 +508,7 @@ const ActionButton = ({
               render={({ field }) => (
                 <View className="my-2">
                   <Text className="mb-2 text-lg font-outfitSemibold">
-                    Valeur ({unit})
+                    Valeur
                   </Text>
                   <Input
                     placeholder="Write some stuff..."

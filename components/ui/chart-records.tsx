@@ -1,6 +1,6 @@
 import { patientsInrRecordsTable } from "@/db/schema";
 import { useState } from "react";
-import { Dimensions, ScrollView, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Button } from "./button";
@@ -23,7 +23,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
 
   if (!records?.length) {
     return (
-      <View className="flex-1 justify-center items-center p-4">
+      <View className="flex-1 gap-2 justify-center items-center p-4">
         <Text className="text-muted-foreground font-outfitSemibold text-lg">
           Aucun enregistrement disponible
         </Text>
@@ -46,10 +46,18 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const total = filteredRecords.length;
   if (!total) {
     return (
-      <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-muted-foreground font-outfitSemibold text-lg">
+      <View className="flex-1 gap-2 justify-center items-center p-4">
+        <Text className="text-muted-foreground text-center font-outfitSemibold text-lg">
           Aucun enregistrement trouvé dans cette période
         </Text>
+        <Button
+          onPress={() => {
+            setToDate(null);
+            setFromDate(null);
+          }}
+        >
+          <Text className="font-outfitSemibold">Réinitialiser le filtre</Text>
+        </Button>
       </View>
     );
   }
@@ -171,7 +179,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
   const ttr = totalDaysForTTR > 0 ? daysInRange / totalDaysForTTR : 0;
 
   return (
-    <ScrollView className=" bg-background">
+    <View className="bg-background pb-4">
       <View className="w-screen  ">
         <View className="">
           {/* Date Range Pickers */}
@@ -190,7 +198,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
           />
 
           {/* Chart Card */}
-          <View className="bg-white flex items-center  rounded-xl px-2 shadow mb-4">
+          <View className="bg-white flex items-center  rounded-xl px-2  mb-4">
             <Text className="text-lg font-outfitSemibold mb-2 text-gray-700">
               Enregistrements INR
             </Text>
@@ -217,7 +225,7 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
                 ],
                 legend: ["Enregistrements du patient"],
               }}
-              width={Dimensions.get("window").width - 48}
+              width={Dimensions.get("window").width - 40}
               height={240}
               fromZero={false}
               yAxisSuffix={" " + unit}
@@ -282,6 +290,6 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
           </View>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };

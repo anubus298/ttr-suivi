@@ -40,7 +40,6 @@ const MaladieSchema = z
       .min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
     minA: z.string({ message: "minA doit être un nombre" }),
     maxB: z.string({ message: "maxB doit être un nombre" }),
-    unit: z.string().min(1, { message: "L'unité est obligatoire" }),
   })
   .refine((data) => parseFloat(data.maxB) > parseFloat(data.minA), {
     message: "maxB doit être supérieur à minA",
@@ -67,7 +66,6 @@ const ActionMaladieButton = ({
         }
       : {
           name: "",
-          unit: "",
           maxB: "",
           minA: "",
         },
@@ -77,7 +75,9 @@ const ActionMaladieButton = ({
     if (isUpdate && maladie?.id) {
       updateMaladieMutation.mutate({
         maladie: {
-          ...data,
+          name: data.name,
+          unit: "mg/l",
+
           maxB: parseFloat(data.maxB),
           minA: parseFloat(data.minA),
         },
@@ -87,7 +87,8 @@ const ActionMaladieButton = ({
     if (!isUpdate) {
       addMaladieMutation.mutate({
         maladie: {
-          ...data,
+          name: data.name,
+          unit: "mg/l",
           maxB: parseFloat(data.maxB),
           minA: parseFloat(data.minA),
         },
@@ -133,7 +134,6 @@ const ActionMaladieButton = ({
     } else {
       form.reset({
         name: "",
-        unit: "",
         maxB: "",
         minA: "",
       });
@@ -222,7 +222,7 @@ const ActionMaladieButton = ({
         </DialogHeader>
         <DialogFooter>
           <Button
-            // disabled={!form.formState.isValid}
+            disabled={!form.formState.isValid}
             onPress={form.handleSubmit(onSubmit)}
           >
             <Text className="font-outfitSemibold">Enregistrer</Text>
@@ -385,12 +385,12 @@ const MaladieCard = ({
 }) => {
   return (
     <View
-      className="mx-2 mb-4 rounded-xl bg-white border flex-1 border-gray-100"
+      className="mx-2 mb-4 rounded-xl bg-white border shadow-none flex-1 border-gray-100"
       style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
+        // shadowColor: "#000",
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.08,
+        // shadowRadius: 12,
         elevation: 4,
       }}
     >
@@ -405,7 +405,7 @@ const MaladieCard = ({
               {malady.name}
             </Text>
             <Text className="text-xs text-muted-foreground font-outfitRegular ">
-              Disease Information
+              Informations sur la maladie
             </Text>
           </View>
         </View>
@@ -437,7 +437,7 @@ const MaladieCard = ({
       <View className="px-4 pb-4">
         <View className="bg-gray-50 rounded-lg p-3">
           <Text className="text-sm font-outfitSemibold text-gray-700 mb-3 text-center">
-            INR Range
+            Intervalle INR
           </Text>
 
           <View className="flex-row justify-between items-center">
@@ -482,8 +482,8 @@ const MaladieCard = ({
       {/* Footer with date */}
       <View className="border-t border-gray-100 px-4 py-3">
         <Text className="text-xs text-gray-400 text-center  font-outfitRegular">
-          Created on{" "}
-          {new Date(malady.created_at).toLocaleDateString("en-US", {
+          Créer le{" "}
+          {new Date(malady.created_at).toLocaleDateString("fr-FR", {
             year: "numeric",
             month: "short",
             day: "numeric",

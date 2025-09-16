@@ -460,15 +460,15 @@ const PatientCard = ({
         </View>
 
         {/* Disease */}
-        <View className="flex-row  items-center bg-red-50 px-4 py-3 rounded-2xl">
+        <View className="flex-row overflow-hidden  items-center bg-red-50 px-4 py-3 rounded-2xl">
           <View className="w-8 h-8 bg-red-200 rounded-full items-center justify-center mr-3">
             <Thermometer size={16} />
           </View>
-          <View>
-            <Text className="text-xs  font-outfitSemibold text-red-600 uppercase tracking-wide">
+          <View className="">
+            <Text className="text-xs  font-outfitSemibold  text-red-600 uppercase tracking-wide">
               Diagnostic
             </Text>
-            <Text className="text-base font-outfitSemibold text-red-900">
+            <Text className="text-base font-outfitSemibold line-clamp-2 pe-3 text-wrap text-red-900">
               {/* @ts-expect-error */}
               {patient.maladieName}
             </Text>
