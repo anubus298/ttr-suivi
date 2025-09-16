@@ -401,7 +401,7 @@ const MaladieCard = ({
             <Thermometer size={20} color="#ef4444" />
           </View>
           <View className="flex-1">
-            <Text className="text-lg font-outfitBold text-gray-900 mb-1">
+            <Text className="text-lg  font-outfitBold text-gray-900 mb-1">
               {malady.name}
             </Text>
             <Text className="text-xs text-muted-foreground font-outfitRegular ">
@@ -410,7 +410,7 @@ const MaladieCard = ({
           </View>
         </View>
 
-        <View className="flex-col absolute right-0 top-0 flex items-center gap-x-1">
+        <View className="flex-col bg-background absolute right-0 top-0 flex items-center gap-x-1">
           <Button
             variant="ghost"
             className="p-2"

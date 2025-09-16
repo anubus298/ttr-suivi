@@ -174,7 +174,7 @@ export const RecordsScreen = (props: Props) => {
                   {records?.length ?? 0} records trouvés
                 </Text>
 
-                <Text className="text-sm text-muted-foreground font-outfitRegular text-wrap">
+                <Text className="text-sm max-w-[40vw] text-muted-foreground font-outfitRegular text-wrap">
                   {maladie?.[0].name}
                 </Text>
               </View>

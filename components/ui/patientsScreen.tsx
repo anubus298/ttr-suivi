@@ -31,6 +31,7 @@ import { Controller, useForm } from "react-hook-form";
 import {
   Platform,
   ScrollView,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
@@ -394,7 +395,16 @@ const PatientsScreen = () => {
     </>
   );
 };
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: "center",
+  },
+});
 const PatientCard = ({
   patient,
   setOpenData,
