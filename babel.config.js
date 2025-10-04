@@ -10,3 +10,4 @@ module.exports = function (api) {
 };
 
 // npx eas build --platform android --profile preview
+// npx eas update --channel preview --message "new 1.0.1 version" -p android

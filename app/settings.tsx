@@ -25,7 +25,7 @@ import { primaryColor } from "@/lib/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleQuestionMark } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, ScrollView, View } from "react-native";
 import z from "zod";
@@ -336,7 +336,7 @@ const SettingsPage = () => {
             </Text>
             <View className="w-full  items-end justify-end flex">
               <Text className="font-outfitLight mt-2 text-xs text-muted-foreground">
-                Version 1.0.0
+                Version 1.0.1
               </Text>
             </View>
           </CardContent>

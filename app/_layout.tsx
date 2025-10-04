@@ -104,8 +104,8 @@ function RootLayout() {
         </Stack.Protected>
         <Stack.Screen name="+not-found" options={{}} />
       </Stack>
-      <StatusBar style="dark" />
       <PortalHost />
+      <StatusBar style="dark" />
     </>
   );
 }
