@@ -21,11 +21,9 @@ import {
   performRestoreFromBackup,
 } from "@/lib/api/backup.api";
 import { ApplySettings, getSettings } from "@/lib/api/settings.api";
-import { primaryColor } from "@/lib/theme";
 import { APP_VERSION } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CircleQuestionMark } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, ScrollView, View } from "react-native";
@@ -279,13 +277,7 @@ const SettingsPage = () => {
               )}
               <View>
                 <Text className="font-outfitLight text-xs text-muted-foreground">
-                  <CircleQuestionMark
-                    className="me-2"
-                    color={primaryColor}
-                    width={16}
-                    height={16}
-                  />
-                  Créez un fichier JSON contenant tous vos dossiers patients,
+                  ❓Créez un fichier JSON contenant tous vos dossiers patients,
                   paramètres et données médicales. La base de données sera
                   optimisée avant l'exportation pour garantir des performances
                   optimales.
