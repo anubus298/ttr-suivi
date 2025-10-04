@@ -5,66 +5,38 @@ import { type ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { ApplySettings } from "@/lib/api/settings.api";
 import { primaryColor } from "@/lib/theme";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChartColumn, Thermometer, User, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import z from "zod";
 
 const ROOT_STYLE: ViewStyle = { flex: 1 };
-
-const SettingsSchema = z.object({
-  doctorName: z
-    .string()
-    .min(2, { error: "Le nom doit contenir au moins 2 caractères" })
-    .max(50, { error: "Le nom ne peut pas dépasser 50 caractères" }),
-  title: z.string().optional(),
-});
 export default function WelcomeConsentScreen() {
-  const form = useForm<z.infer<typeof SettingsSchema>>({
-    resolver: zodResolver(SettingsSchema),
-    defaultValues: { doctorName: "", title: "Médecin généraliste" },
-  });
-  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+
   const applyFirstSettingsMutation = useMutation({
     mutationFn: ApplySettings,
     mutationKey: ["ApplyFirstSettings"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["checkIfAgreed"] });
       queryClient.refetchQueries({ queryKey: ["checkIfAgreed"] });
-      setIsOpen(false);
       setTimeout(() => {
         router.replace("/explore");
-      }, 3000);
+      }, 1000);
     },
     onError: (err) => {
       console.error(err.message);
     },
   });
-  const onSubmit = (data: z.infer<typeof SettingsSchema>) => {
-    console.log(data);
+
+  const handleContinue = () => {
+    // Create default settings to mark as agreed
     applyFirstSettingsMutation.mutate({
-      doctorName: data.doctorName,
-      titre: data.title,
+      doctorName: "Doctor", // Default name, can be changed in settings
+      titre: "Médecin généraliste",
     });
   };
-  useEffect(() => {
-    form.reset();
-  }, [isOpen]);
   return (
     <SafeAreaView style={ROOT_STYLE}>
       <View className="mx-auto max-w-sm flex-1 justify-between gap-4 px-8 py-4 ">
@@ -106,69 +78,18 @@ export default function WelcomeConsentScreen() {
               </Text>
             </Text>
           </View>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button variant={"default"}>
-                <Text className="text-primary-foreground font-outfitSemibold">
-                  Continuer
-                </Text>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Informations personnelles</DialogTitle>
-                <DialogDescription>
-                  Entrez votre nom et Titre professionnel vous pourrez le
-                  modifier plus tard
-                </DialogDescription>
-                <Controller
-                  name="doctorName"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <View className="gap-y-1 flex ">
-                      <Text className=" font-outfitLight ">Nom:</Text>
-                      <Input
-                        value={field.value}
-                        placeholder="Entrez votre nom"
-                        onChangeText={field.onChange}
-                      />
-                      {fieldState.error?.message && (
-                        <Text className="text-destructive font-outfitRegular text-sm">
-                          {fieldState.error?.message ?? ""}
-                        </Text>
-                      )}
-                    </View>
-                  )}
-                />
-                <Controller
-                  name="title"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <View className="gap-y-1 flex ">
-                      <Text className=" font-outfitLight ">
-                        Titre professionnel:
-                      </Text>
-                      <Input
-                        value={field.value}
-                        placeholder="Entrez votre titre professionnel"
-                        onChangeText={field.onChange}
-                      />
-                      {fieldState.error?.message && (
-                        <Text className="text-destructive font-outfitRegular text-sm">
-                          {fieldState.error?.message ?? ""}
-                        </Text>
-                      )}
-                    </View>
-                  )}
-                />
-                <Button onPress={form.handleSubmit(onSubmit)} className="mt-4">
-                  <Text className="text-primary-foreground font-outfitSemibold">
-                    Confirmer
-                  </Text>
-                </Button>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+
+          <Button
+            variant="default"
+            onPress={handleContinue}
+            disabled={applyFirstSettingsMutation.isPending}
+          >
+            <Text className="text-primary-foreground font-outfitSemibold">
+              {applyFirstSettingsMutation.isPending
+                ? "Chargement..."
+                : "Continuer"}
+            </Text>
+          </Button>
         </View>
       </View>
     </SafeAreaView>

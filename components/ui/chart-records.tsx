@@ -36,13 +36,15 @@ export const ChartRecords = ({ unit, records, minA, maxB }: Props) => {
       new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
   );
 
+  const normalizeDate = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
   const filteredRecords = sortedRecords.filter((r) => {
-    const date = new Date(r.recorded_at);
-    if (fromDate && date < fromDate) return false;
-    if (toDate && date > toDate) return false;
+    const date = normalizeDate(new Date(r.recorded_at));
+    if (fromDate && date < normalizeDate(fromDate)) return false;
+    if (toDate && date > normalizeDate(toDate)) return false;
     return true;
   });
-
   const total = filteredRecords.length;
   if (!total) {
     return (

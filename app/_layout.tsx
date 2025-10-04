@@ -89,7 +89,15 @@ function RootLayout() {
               ),
             }}
           />
-          <Stack.Screen name="settings" options={{ headerShown: true }} />
+          <Stack.Screen
+            name="settings"
+            options={{
+              headerShown: true,
+              headerTitle: () => (
+                <Text className="font-outfitSemibold text-xl">Paramètres</Text>
+              ),
+            }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={!isAgreed}>
           <Stack.Screen name="welcoming" options={{ headerShown: false }} />

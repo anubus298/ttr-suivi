@@ -152,9 +152,9 @@ export const RecordsScreen = (props: Props) => {
     enabled: !!props.userId,
   });
   return (
-    <ScrollView className="flex-1 my-2">
+    <ScrollView className="flex-1  my-2">
       <>
-        <View className="flex-1 bg-slate-50">
+        <View className="flex-1 bg-slate-50 ">
           {/* Header */}
 
           <ActionButton
@@ -164,7 +164,7 @@ export const RecordsScreen = (props: Props) => {
             {...openData}
             setOpen={(v) => setOpenData((prev) => ({ ...prev, open: v }))}
           />
-          <View className="bg-white px-6 pt-14 pb-6">
+          <View className="bg-white px-6 pt-2 pb-6">
             <View className="flex-row items-center justify-between mb-6">
               <View>
                 <Text className="text-2xl font-outfitBold text-gray-900">
