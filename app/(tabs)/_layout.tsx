@@ -23,6 +23,7 @@ export default function TabLayout() {
           padding: 0,
         },
         tabBarBackground: () => <View className="bg-background flex-1"></View>,
+        animation: "fade",
       }}
     >
       <Tabs.Screen

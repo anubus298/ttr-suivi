@@ -22,6 +22,7 @@ import {
 } from "@/lib/api/backup.api";
 import { ApplySettings, getSettings } from "@/lib/api/settings.api";
 import { primaryColor } from "@/lib/theme";
+import { APP_VERSION } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleQuestionMark } from "lucide-react-native";
@@ -336,7 +337,7 @@ const SettingsPage = () => {
             </Text>
             <View className="w-full  items-end justify-end flex">
               <Text className="font-outfitLight mt-2 text-xs text-muted-foreground">
-                Version 1.0.1
+                Version {APP_VERSION}
               </Text>
             </View>
           </CardContent>

@@ -85,7 +85,7 @@ const DoctorGreetingScreen = () => {
   }, [settings]);
   return (
     <>
-      <ScrollView className="flex-1 bg-slate-50">
+      <ScrollView className="flex-1">
         {/* Header */}
         <View className="flex-row w-full justify-between items-center pt-14 pb-6 px-6 bg-white">
           <View className="  flex-row items-center">

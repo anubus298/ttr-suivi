@@ -31,7 +31,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
   Platform,
   ScrollView,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
@@ -269,12 +268,13 @@ const DeletePatientButton = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <TouchableOpacity
+        <Button
+          variant={"ghost"}
           className="w-8 h-8 rounded-full items-center justify-center"
-          activeOpacity={0.8}
+          // activeOpacity={0.8}
         >
           <Trash size={16} color={"red"} />
-        </TouchableOpacity>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -395,16 +395,7 @@ const PatientsScreen = () => {
     </>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 36,
-    alignItems: "center",
-  },
-});
+
 const PatientCard = ({
   patient,
   setOpenData,
@@ -419,16 +410,7 @@ const PatientCard = ({
   const [detailsIsOpen, setDetailsIsOpen] = useState(false);
   const router = useRouter();
   return (
-    <View
-      className="bg-white rounded-3xl p-6 mb-4 shadow-lg border border-gray-50"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
-    >
+    <View className="bg-white rounded-3xl p-6 mb-4 border border-gray-50">
       {/* Patient Header */}
       <View className="flex-row items-center mb-4">
         <View className="w-16 h-16 bg-blue-100 rounded-2xl items-center justify-center mr-4">

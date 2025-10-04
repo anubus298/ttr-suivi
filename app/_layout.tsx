@@ -105,7 +105,7 @@ function RootLayout() {
         <Stack.Screen name="+not-found" options={{}} />
       </Stack>
       <PortalHost />
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
     </>
   );
 }
