@@ -8,3 +8,5 @@ module.exports = function (api) {
     plugins: [["inline-import", { extensions: [".sql"] }]],
   };
 };
+
+// npx eas build --platform android --profile preview

@@ -142,7 +142,7 @@ const ActionMaladieButton = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[90vw]">
         <DialogHeader>
           <DialogTitle>
             {isUpdate ? "Modifier un maladie" : "Créer un maladie"}
